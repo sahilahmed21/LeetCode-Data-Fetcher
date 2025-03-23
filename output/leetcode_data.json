@@ -1,0 +1,1335 @@
+{
+  "username": "sahil214",
+  "profile_stats": {
+    "total_solved": 94,
+    "easy": 40,
+    "medium": 49,
+    "hard": 5
+  },
+  "problems": [
+    {
+      "title": "Find Missing and Repeated Values",
+      "difficulty": "Easy",
+      "description": "You are given a 0-indexed 2D integer matrix grid of size n * n with values in the range [1, n2]. Each integer appears exactly once except a which appears twice and b which is missing. The task is to find the repeating and missing numbers a and b.\nReturn a 0-indexed integer array ans of size 2 where ans[0] equals to a and ans[1] equals to b.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\n2 <= n == grid.length == grid[i].length <= 50\n1 <= grid[i][j] <= n * n\nFor all x that 1 <= x <= n * n there is exactly one x that is not equal to any of the grid members.\nFor all x that 1 <= x <= n * n there is exactly one x that is equal to exactly two of the grid members.\nFor all x that 1 <= x <= n * n except two of them there is exactly one pair of i, j that 0 <= i, j <= n - 1 and grid[i][j] == x.",
+      "tags": [
+        "Array",
+        "Hash Table",
+        "Math",
+        "Matrix"
+      ],
+      "slug": "find-missing-and-repeated-values",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1741294269",
+          "runtime": "4 ms",
+          "memory": "26.4 MB",
+          "language": "cpp",
+          "id": "1565307338",
+          "code": "class Solution {\npublic:\n    vector<int> findMissingAndRepeatedValues(vector<vector<int>>& grid) {\n        int n = grid.size();\n        int size = n * n;\n        vector<int> freq(size + 1, 0);\n        vector<int> ans(2, 0);\n\n        for (int i = 0; i < n; i++) {\n            for (int j = 0; j < n; j++) {\n                freq[grid[i][j]]++;\n                if (freq[grid[i][j]] > 1) {\n                    ans[0] = grid[i][j];\n                }\n            }\n        }\n\n        for (int i = 1; i <= size; i++) {\n            if (freq[i] == 0) {\n                ans[1] = i;\n                break;\n            }\n        }\n\n        return ans;\n    }\n};\n"
+        }
+      ]
+    },
+    {
+      "title": "Apply Operations to an Array",
+      "difficulty": "Easy",
+      "description": "You are given a 0-indexed array nums of size n consisting of non-negative integers.\nYou need to apply n - 1 operations to this array where, in the ith operation (0-indexed), you will apply the following on the ith element of nums:\n\nIf nums[i] == nums[i + 1], then multiply nums[i] by 2 and set nums[i + 1] to 0. Otherwise, you skip this operation.\n\nAfter performing all the operations, shift all the 0's to the end of the array.\n\nFor example, the array [1,0,2,0,0,1] after shifting all its 0's to the end, is [1,2,1,0,0,0].\n\nReturn the resulting array.\nNote that the operations are applied sequentially, not all at once.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\n2 <= nums.length <= 2000\n0 <= nums[i] <= 1000",
+      "tags": [
+        "Array",
+        "Two Pointers",
+        "Simulation"
+      ],
+      "slug": "apply-operations-to-an-array",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1741293741",
+          "runtime": "0 ms",
+          "memory": "13.2 MB",
+          "language": "cpp",
+          "id": "1565301929",
+          "code": "class Solution {\npublic:\n    vector<int> applyOperations(vector<int>& nums) {\n        int n = nums.size();\n\n        for (int i = 0; i < n - 1; i++) {\n            if (nums[i] == nums[i + 1]) {\n                nums[i] *= 2;\n                nums[i + 1] = 0;\n            }\n        }\n\n        vector<int> result(n, 0);\n        int index = 0;\n\n        for (int num : nums) {\n            if (num != 0) {\n                result[index++] = num;\n            }\n        }\n\n        return result;\n    }\n};\n"
+        }
+      ]
+    },
+    {
+      "title": "Rearrange Array Elements by Sign",
+      "difficulty": "Medium",
+      "description": "You are given a 0-indexed integer array nums of even length consisting of an equal number of positive and negative integers.\nYou should return the array of nums such that the the array follows the given conditions:\n\nEvery consecutive pair of integers have opposite signs.\nFor all integers with the same sign, the order in which they were present in nums is preserved.\nThe rearranged array begins with a positive integer.\n\nReturn the modified array after rearranging the elements to satisfy the aforementioned conditions.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\n2 <= nums.length <= 2 * 105\nnums.length is even\n1 <= |nums[i]| <= 105\nnums consists of equal number of positive and negative integers.\n\nIt is not required to do the modifications in-place.",
+      "tags": [
+        "Array",
+        "Two Pointers",
+        "Simulation"
+      ],
+      "slug": "rearrange-array-elements-by-sign",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1734105569",
+          "runtime": "9 ms",
+          "memory": "139 MB",
+          "language": "cpp",
+          "id": "1477948617",
+          "code": "class Solution {\npublic:\n    vector<int> rearrangeArray(vector<int>& nums) {\n        vector<int> positives;\n        vector<int> negatives;\n\n        for (int num : nums) {  \n            if (num > 0) {\n                positives.push_back(num);\n            } else {\n                negatives.push_back(num);\n            }\n        }\n\n        int j = 0; \n        for (int i = 0; i < positives.size(); i++) { \n            nums[j++] = positives[i]; \n            nums[j++] = negatives[i]; \n        }\n\n        return nums; \n    }\n};\n"
+        }
+      ]
+    },
+    {
+      "title": "Sum of Subarray Ranges",
+      "difficulty": "Medium",
+      "description": "You are given an integer array nums. The range of a subarray of nums is the difference between the largest and smallest element in the subarray.\nReturn the sum of all subarray ranges of nums.\nA subarray is a contiguous non-empty sequence of elements within an array.\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\n1 <= nums.length <= 1000\n-109 <= nums[i] <= 109\n\nFollow-up: Could you find a solution with O(n) time complexity?",
+      "tags": [
+        "Array",
+        "Stack",
+        "Monotonic Stack"
+      ],
+      "slug": "sum-of-subarray-ranges",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1736431605",
+          "runtime": "6 ms",
+          "memory": "15.8 MB",
+          "language": "cpp",
+          "id": "1503022525",
+          "code": "class Solution {\npublic:\n    vector<int> prevSmaller(vector<int>& arr) {\n        stack<int> st;\n        vector<int> ans(arr.size(), -1);\n        for (int i = 0; i < arr.size(); i++) {\n            while (!st.empty() && arr[st.top()] > arr[i])\n                st.pop();\n            if (!st.empty())\n                ans[i] = st.top();\n            st.push(i);\n        }\n        return ans;\n    }\n\n    vector<int> nextSmaller(vector<int>& arr) {\n        stack<int> st;\n        vector<int> ans(arr.size(), arr.size());\n        for (int i = arr.size() - 1; i >= 0; i--) {\n            while (!st.empty() && arr[st.top()] >= arr[i])\n                st.pop();\n            if (!st.empty())\n                ans[i] = st.top();\n            st.push(i);\n        }\n        return ans;\n    }\n\n    vector<int> prevGreater(vector<int>& arr) {\n        stack<int> st;\n        vector<int> ans(arr.size(), -1);\n        for (int i = 0; i < arr.size(); i++) {\n            while (!st.empty() && arr[st.top()] < arr[i])\n                st.pop();\n            if (!st.empty())\n                ans[i] = st.top();\n            st.push(i);\n        }\n        return ans;\n    }\n\n    vector<int> nextGreater(vector<int>& arr) {\n        stack<int> st;\n        vector<int> ans(arr.size(), arr.size());\n        for (int i = arr.size() - 1; i >= 0; i--) {\n            while (!st.empty() && arr[st.top()] <= arr[i])\n                st.pop();\n            if (!st.empty())\n                ans[i] = st.top();\n            st.push(i);\n        }\n        return ans;\n    }\n\n    long long subArrayRanges(vector<int>& arr) {\n        vector<int> prevS = prevSmaller(arr);\n        vector<int> nextS = nextSmaller(arr);\n        vector<int> prevG = prevGreater(arr);\n        vector<int> nextG = nextGreater(arr);\n        long long ans = 0;\n\n        for (int i = 0; i < arr.size(); i++) {\n            long long minleftElements = i - prevS[i];\n            long long minrightElements = nextS[i] - i;\n            long long maxleftElements = i - prevG[i];\n            long long maxrightElements = nextG[i] - i;\n            ans += (maxleftElements * maxrightElements * arr[i]) - (minleftElements * minrightElements * arr[i]);\n        }\n        return ans;\n    }\n};\n"
+        }
+      ]
+    },
+    {
+      "title": "Delete the Middle Node of a Linked List",
+      "difficulty": "Medium",
+      "description": "You are given the head of a linked list. Delete the middle node, and return the head of the modified linked list.\nThe middle node of a linked list of size n is the ⌊n / 2⌋th node from the start using 0-based indexing, where ⌊x⌋ denotes the largest integer less than or equal to x.\n\nFor n = 1, 2, 3, 4, and 5, the middle nodes are 0, 1, 1, 2, and 2, respectively.\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\nThe number of nodes in the list is in the range [1, 105].\n1 <= Node.val <= 105",
+      "tags": [
+        "Linked List",
+        "Two Pointers"
+      ],
+      "slug": "delete-the-middle-node-of-a-linked-list",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1735222294",
+          "runtime": "0 ms",
+          "memory": "312.1 MB",
+          "language": "cpp",
+          "id": "1488915613",
+          "code": "/**\n * Definition for singly-linked list.\n * struct ListNode {\n *     int val;\n *     ListNode *next;\n *     ListNode() : val(0), next(nullptr) {}\n *     ListNode(int x) : val(x), next(nullptr) {}\n *     ListNode(int x, ListNode *next) : val(x), next(next) {}\n * };\n */\nclass Solution {\npublic:\n    ListNode* deleteMiddle(ListNode* head) {\n      if(!head || !head->next) return nullptr;\n   \n   ListNode* curr = head;\n   int count = 0;\n   while(curr != NULL) {\n       curr = curr->next;\n       count++;\n   }\n   \n   curr = head;\n   for(int i = 0; i < count/2 - 1; i++) {\n       curr = curr->next;\n   }\n   \n   ListNode* temp = curr->next;\n   curr->next = curr->next->next;\n   delete temp;\n   return head;   \n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Count Good Numbers",
+      "difficulty": "Medium",
+      "description": "A digit string is good if the digits (0-indexed) at even indices are even and the digits at odd indices are prime (2, 3, 5, or 7).\n\nFor example, \"2582\" is good because the digits (2 and 8) at even positions are even and the digits (5 and 2) at odd positions are prime. However, \"3245\" is not good because 3 is at an even index but is not even.\n\nGiven an integer n, return the total number of good digit strings of length n. Since the answer may be large, return it modulo 109 + 7.\nA digit string is a string consisting of digits 0 through 9 that may contain leading zeros.\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\n1 <= n <= 1015",
+      "tags": [
+        "Math",
+        "Recursion"
+      ],
+      "slug": "count-good-numbers",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1735556078",
+          "runtime": "0 ms",
+          "memory": "8 MB",
+          "language": "cpp",
+          "id": "1492359120",
+          "code": "class Solution {\npublic:\n   long long myPow(long long x, long long n, long long mod) {\n       if(n == 0) return 1;\n       \n       long long half = myPow(x, n/2, mod);\n       long long ans = (half * half) % mod;\n       \n       if(n % 2 == 0) return ans;\n       return (ans * x) % mod;\n   }\n\n   int countGoodNumbers(long long n) {\n       long long mod = 1e9 + 7;\n       \n       // For even indices (0,2,4...) we have 5 options (0,2,4,6,8)\n       // For odd indices (1,3,5...) we have 4 options (2,3,5,7)\n       long long evenPositions = (n + 1) / 2; // positions for 5 options\n       long long oddPositions = n / 2;  // positions for 4 options\n       \n       long long ans = 1;\n       ans = myPow(5, evenPositions, mod);\n       ans = (ans * myPow(4, oddPositions, mod)) % mod;\n       \n       return (int)ans;\n   }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Largest Odd Number in String",
+      "difficulty": "Easy",
+      "description": "You are given a string num, representing a large integer. Return the largest-valued odd integer (as a string) that is a non-empty substring of num, or an empty string \"\" if no odd integer exists.\nA substring is a contiguous sequence of characters within a string.\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\n1 <= num.length <= 105\nnum only consists of digits and does not contain any leading zeros.",
+      "tags": [
+        "Math",
+        "String",
+        "Greedy"
+      ],
+      "slug": "largest-odd-number-in-string",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1734677081",
+          "runtime": "3 ms",
+          "memory": "17.7 MB",
+          "language": "cpp",
+          "id": "1483526550",
+          "code": "class Solution {\npublic:\n    string largestOddNumber(string num) {\n        for (int i = num.length() - 1; i >= 0; i--) {\n            if ((num[i] - '0') % 2 == 1) {\n                return num.substr(0, i + 1);\n            }\n        }\n        return \"\";\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Check if Array Is Sorted and Rotated",
+      "difficulty": "Easy",
+      "description": "Given an array nums, return true if the array was originally sorted in non-decreasing order, then rotated some number of positions (including zero). Otherwise, return false.\nThere may be duplicates in the original array.\nNote: An array A rotated by x positions results in an array B of the same length such that B[i] == A[(i+x) % A.length] for every valid index i.\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\n1 <= nums.length <= 100\n1 <= nums[i] <= 100",
+      "tags": [
+        "Array"
+      ],
+      "slug": "check-if-array-is-sorted-and-rotated",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1738518978",
+          "runtime": "0 ms",
+          "memory": "11 MB",
+          "language": "cpp",
+          "id": "1528916738",
+          "code": "class Solution {\npublic:\n    bool check(vector<int>& nums) {\n        int n = nums.size();\n        int cnt = 0;\n\n        for (int i = 0; i < n; i++) {\n            if (nums[i] > nums[(i + 1) % n]) {\n                cnt++;\n            }\n        }\n\n        return cnt <= 1;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Maximum Nesting Depth of the Parentheses",
+      "difficulty": "Easy",
+      "description": "Given a valid parentheses string s, return the nesting depth of s. The nesting depth is the maximum number of nested parentheses.\n\nExample 1:\n\nInput: s = \"(1+(2*3)+((8)/4))+1\"\nOutput: 3\nExplanation:\nDigit 8 is inside of 3 nested parentheses in the string.\n\nExample 2:\n\nInput: s = \"(1)+((2))+(((3)))\"\nOutput: 3\nExplanation:\nDigit 3 is inside of 3 nested parentheses in the string.\n\nExample 3:\n\nInput: s = \"()(())((()()))\"\nOutput: 3\n\nConstraints:\n\n1 <= s.length <= 100\ns consists of digits 0-9 and characters '+', '-', '*', '/', '(', and ')'.\nIt is guaranteed that parentheses expression s is a VPS.",
+      "tags": [
+        "String",
+        "Stack"
+      ],
+      "slug": "maximum-nesting-depth-of-the-parentheses",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1734782282",
+          "runtime": "0 ms",
+          "memory": "8.3 MB",
+          "language": "cpp",
+          "id": "1484474509",
+          "code": "class Solution {\npublic:\n    int maxDepth(string s) {\n        int count = 0;\n        int maxDepth = 0;\n        for (int i = 0; i < s.size(); i++) {\n            if (s[i] == '(') {\n                count++;\n                if (count > maxDepth) {\n                    maxDepth = count;\n                }\n            } else if (s[i] == ')') {\n                count--;\n            }\n        }\n        return maxDepth;\n    }\n};\n"
+        }
+      ]
+    },
+    {
+      "title": "Remove Outermost Parentheses",
+      "difficulty": "Easy",
+      "description": "A valid parentheses string is either empty \"\", \"(\" + A + \")\", or A + B, where A and B are valid parentheses strings, and + represents string concatenation.\n\nFor example, \"\", \"()\", \"(())()\", and \"(()(()))\" are all valid parentheses strings.\n\nA valid parentheses string s is primitive if it is nonempty, and there does not exist a way to split it into s = A + B, with A and B nonempty valid parentheses strings.\nGiven a valid parentheses string s, consider its primitive decomposition: s = P1 + P2 + ... + Pk, where Pi are primitive valid parentheses strings.\nReturn s after removing the outermost parentheses of every primitive string in the primitive decomposition of s.\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\n1 <= s.length <= 105\ns[i] is either '(' or ')'.\ns is a valid parentheses string.",
+      "tags": [
+        "String",
+        "Stack"
+      ],
+      "slug": "remove-outermost-parentheses",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1734632434",
+          "runtime": "0 ms",
+          "memory": "9 MB",
+          "language": "cpp",
+          "id": "1483159775",
+          "code": "class Solution {\npublic:\n    string removeOuterParentheses(string s) {\n        string result = \"\";\n        int balance = 0;\n        \n        for (int i = 0; i < s.length(); i++) {\n            char c = s[i];\n            if (c == '(') {\n                if (balance > 0) {\n                    result += c;\n                }\n                balance++;\n            } else if (c == ')') {\n                balance--;\n                if (balance > 0) {\n                    result += c;\n                }\n            }\n        }\n        \n        return result;\n    }\n};\n"
+        }
+      ]
+    },
+    {
+      "title": "Number of Enclaves",
+      "difficulty": "Medium",
+      "description": "You are given an m x n binary matrix grid, where 0 represents a sea cell and 1 represents a land cell.\nA move consists of walking from one land cell to another adjacent (4-directionally) land cell or walking off the boundary of the grid.\nReturn the number of land cells in grid for which we cannot walk off the boundary of the grid in any number of moves.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\nm == grid.length\nn == grid[i].length\n1 <= m, n <= 500\ngrid[i][j] is either 0 or 1.",
+      "tags": [
+        "Array",
+        "Depth-First Search",
+        "Breadth-First Search",
+        "Union Find",
+        "Matrix"
+      ],
+      "slug": "number-of-enclaves",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1742242475",
+          "runtime": "8 ms",
+          "memory": "36.8 MB",
+          "language": "cpp",
+          "id": "1577212507",
+          "code": "class Solution {\npublic:\n    void dfs(int i, int j, vector<vector<int>>& vis) {\n        if (i >= 0 && i < vis.size() && j >= 0 && j < vis[0].size() && vis[i][j] == 1) {\n            vis[i][j] = 0;\n            dfs(i + 1, j, vis);\n            dfs(i - 1, j, vis);\n            dfs(i, j + 1, vis);\n            dfs(i, j - 1, vis);\n        }\n    }\n\n    int numEnclaves(vector<vector<int>>& grid) {\n        int m = grid.size(), n = grid[0].size();\n        vector<vector<int>> vis(grid.begin(), grid.end());\n        int count = 0;\n\n        for (int i = 0; i < n; i++) {\n            if (vis[0][i] == 1)\n                dfs(0, i, vis);\n            if (vis[m - 1][i] == 1)\n                dfs(m - 1, i, vis);\n        }\n        for (int i = 0; i < m; i++) {\n            if (vis[i][0] == 1)\n                dfs(i, 0, vis);\n            if (vis[i][n - 1] == 1)\n                dfs(i, n - 1, vis);\n        }\n\n        for (int i = 0; i < m; i++) {\n            for (int j = 0; j < n; j++) {\n                if (vis[i][j] == 1) {\n                    count++;\n                }\n            }\n        }\n\n        return count;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Rotting Oranges",
+      "difficulty": "Medium",
+      "description": "You are given an m x n grid where each cell can have one of three values:\n\n0 representing an empty cell,\n1 representing a fresh orange, or\n2 representing a rotten orange.\n\nEvery minute, any fresh orange that is 4-directionally adjacent to a rotten orange becomes rotten.\nReturn the minimum number of minutes that must elapse until no cell has a fresh orange. If this is impossible, return -1.\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\nm == grid.length\nn == grid[i].length\n1 <= m, n <= 10\ngrid[i][j] is 0, 1, or 2.",
+      "tags": [
+        "Array",
+        "Breadth-First Search",
+        "Matrix"
+      ],
+      "slug": "rotting-oranges",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1741275030",
+          "runtime": "0 ms",
+          "memory": "16.8 MB",
+          "language": "cpp",
+          "id": "1565009479",
+          "code": "class Solution {\npublic:\n    int orangesRotting(vector<vector<int>>& grid) {\n        \n     int ans = -1, fresh = 0, m = grid.size(), n = grid[0].size();\n    queue<pair<int, int>> q;\n\n    for(int i = 0; i < m; i++) {\n        for(int j = 0; j < n; j++) {\n            if(grid[i][j] == 2) {\n                q.push({i, j});\n            }\n            if(grid[i][j] == 1) {\n                fresh++;\n            }\n        }\n    }\n\n    if(fresh == 0) {\n        return 0;\n    }\n\n    vector<int> dr = {-1, 1, 0, 0};\n    vector<int> dc = {0, 0, -1, 1};\n\n    while(!q.empty()) {\n        int k = q.size();\n        while(k--) {\n            auto p = q.front();\n            q.pop();\n            int x = p.first, y = p.second;\n\n            for(int i = 0; i < 4; i++) {\n                int nx = x + dr[i], ny = y + dc[i];\n                if(nx >= 0 && nx < m && ny >= 0 && ny < n && grid[nx][ny] == 1) {\n                    grid[nx][ny] = 2;\n                    q.push({nx, ny});\n                    fresh--;\n                }\n            }\n        }\n        ans++;\n    }\n\n    return (fresh > 0) ? -1 : ans;\n}\n};"
+        }
+      ]
+    },
+    {
+      "title": "Vertical Order Traversal of a Binary Tree",
+      "difficulty": "Hard",
+      "description": "Given the root of a binary tree, calculate the vertical order traversal of the binary tree.\nFor each node at position (row, col), its left and right children will be at positions (row + 1, col - 1) and (row + 1, col + 1) respectively. The root of the tree is at (0, 0).\nThe vertical order traversal of a binary tree is a list of top-to-bottom orderings for each column index starting from the leftmost column and ending on the rightmost column. There may be multiple nodes in the same row and same column. In such a case, sort these nodes by their values.\nReturn the vertical order traversal of the binary tree.\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\nThe number of nodes in the tree is in the range [1, 1000].\n0 <= Node.val <= 1000",
+      "tags": [
+        "Hash Table",
+        "Tree",
+        "Depth-First Search",
+        "Breadth-First Search",
+        "Sorting",
+        "Binary Tree"
+      ],
+      "slug": "vertical-order-traversal-of-a-binary-tree",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1739727313",
+          "runtime": "0 ms",
+          "memory": "16 MB",
+          "language": "cpp",
+          "id": "1545336837",
+          "code": "/**\n * Definition for a binary tree node.\n * struct TreeNode {\n *     int val;\n *     TreeNode *left;\n *     TreeNode *right;\n *     TreeNode() : val(0), left(nullptr), right(nullptr) {}\n *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n * };\n */\nclass Solution {\npublic:\n    map<int, vector<pair<int, int>>> nodeMap;\n\n    void traverse(TreeNode* root, int x, int y) {\n        if (!root) return;\n        nodeMap[x].push_back({y, root->val});\n        traverse(root->left, x - 1, y + 1);\n        traverse(root->right, x + 1, y + 1);\n    }\n\n    vector<vector<int>> verticalTraversal(TreeNode* root) {\n        traverse(root, 0, 0);\n        \n        vector<vector<int>> result;\n        \n        for (auto& entry : nodeMap) {\n            vector<pair<int, int>>& nodes = entry.second;\n            \n            sort(nodes.begin(), nodes.end());\n            queue<int> q;\n            \n            for (auto& p : nodes) {\n                q.push(p.second);\n            }\n            \n            vector<int> col;\n            \n            while (!q.empty()) {\n                col.push_back(q.front());\n                q.pop();\n            }\n            \n            result.push_back(col);\n        }\n        \n        return result;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Fibonacci Number",
+      "difficulty": "Easy",
+      "description": "The Fibonacci numbers, commonly denoted F(n) form a sequence, called the Fibonacci sequence, such that each number is the sum of the two preceding ones, starting from 0 and 1. That is,\n\nGiven n, calculate F(n).\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\n0 <= n <= 30",
+      "tags": [
+        "Math",
+        "Dynamic Programming",
+        "Recursion",
+        "Memoization"
+      ],
+      "slug": "fibonacci-number",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1735385545",
+          "runtime": "14 ms",
+          "memory": "7.8 MB",
+          "language": "cpp",
+          "id": "1490591565",
+          "code": "class Solution {\npublic:\n    int fib(int n) {\n        if(n<=1){\n            return n;\n        }\n        return fib(n-1)+fib(n-2);\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Sum of Subarray Minimums",
+      "difficulty": "Medium",
+      "description": "Given an array of integers arr, find the sum of min(b), where b ranges over every (contiguous) subarray of arr. Since the answer may be large, return the answer modulo 109 + 7.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\n1 <= arr.length <= 3 * 104\n1 <= arr[i] <= 3 * 104",
+      "tags": [
+        "Array",
+        "Dynamic Programming",
+        "Stack",
+        "Monotonic Stack"
+      ],
+      "slug": "sum-of-subarray-minimums",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1736360400",
+          "runtime": "16 ms",
+          "memory": "47.2 MB",
+          "language": "cpp",
+          "id": "1502144793",
+          "code": "class Solution {\npublic:\n    vector<int> prevSmaller(vector<int>& arr) {\n        vector<int> ans(arr.size(), -1);\n        stack<int> st;\n        for(int i = 0; i < arr.size(); i++) {\n            while(!st.empty() && arr[st.top()] >= arr[i]) {  \n                st.pop();\n            }\n            if(!st.empty()) {\n                ans[i] = st.top();\n            }\n            st.push(i);\n        }\n        return ans;\n    }\n    \n    vector<int> nextSmaller(vector<int>& arr) {\n        stack<int> st;\n        vector<int> ans(arr.size(), arr.size());\n        for(int i = arr.size()-1; i >= 0; i--) {\n            while(!st.empty() && arr[st.top()] > arr[i])  \n                st.pop();\n            if(!st.empty())\n                ans[i] = st.top();\n            st.push(i);\n        }\n        return ans;\n    }\n\n    int sumSubarrayMins(vector<int>& arr) {\n        vector<int> prevS = prevSmaller(arr);\n        vector<int> nextS = nextSmaller(arr);\n        long long ans = 0;\n        int mod = 1e9 + 7;\n\n        for(int i = 0; i < arr.size(); i++) {\n            long long leftElements = i - prevS[i];\n            long long rightElements = nextS[i] - i;\n            long long contribution = (leftElements * rightElements % mod) * arr[i] % mod;  \n            ans = (ans + contribution) % mod; \n        }\n\n        return ans;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Middle of the Linked List",
+      "difficulty": "Easy",
+      "description": "Given the head of a singly linked list, return the middle node of the linked list.\nIf there are two middle nodes, return the second middle node.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\nThe number of nodes in the list is in the range [1, 100].\n1 <= Node.val <= 100",
+      "tags": [
+        "Linked List",
+        "Two Pointers"
+      ],
+      "slug": "middle-of-the-linked-list",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1735221947",
+          "runtime": "0 ms",
+          "memory": "10.1 MB",
+          "language": "cpp",
+          "id": "1488911245",
+          "code": "/**\n * Definition for singly-linked list.\n * struct ListNode {\n *     int val;\n *     ListNode *next;\n *     ListNode() : val(0), next(nullptr) {}\n *     ListNode(int x) : val(x), next(nullptr) {}\n *     ListNode(int x, ListNode *next) : val(x), next(next) {}\n * };\n */\nclass Solution {\npublic:\n    ListNode* middleNode(ListNode* head) {\n      int cnt=0;\n      ListNode* curr=head;\n      while(curr!=NULL){\n        cnt++;\n        curr=curr->next;\n      } \n\n      curr=head;\n      for(int i=0;i<cnt/2;i++){\n        curr=curr->next;\n      }\n      return curr;\n\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Lemonade Change",
+      "difficulty": "Easy",
+      "description": "At a lemonade stand, each lemonade costs $5. Customers are standing in a queue to buy from you and order one at a time (in the order specified by bills). Each customer will only buy one lemonade and pay with either a $5, $10, or $20 bill. You must provide the correct change to each customer so that the net transaction is that the customer pays $5.\nNote that you do not have any change in hand at first.\nGiven an integer array bills where bills[i] is the bill the ith customer pays, return true if you can provide every customer with the correct change, or false otherwise.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\n1 <= bills.length <= 105\nbills[i] is either 5, 10, or 20.",
+      "tags": [
+        "Array",
+        "Greedy"
+      ],
+      "slug": "lemonade-change",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1737796542",
+          "runtime": "0 ms",
+          "memory": "87 MB",
+          "language": "cpp",
+          "id": "1519855131",
+          "code": "class Solution {\npublic:\n    bool lemonadeChange(vector<int>& bills) {\n        int five = 0, ten = 0; \n\n        for (int bill : bills) {\n            if (bill == 5) {\n                five++; \n            } else if (bill == 10) {\n                if (five == 0) return false;\n                five--; \n                ten++;  \n            } else { \n                if (ten > 0 && five > 0) { \n                    ten--;\n                    five--;\n                } else if (five >= 3) { \n                    five -= 3;\n                } else {\n                    return false;\n                }\n            }\n        }\n        return true; \n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Find Eventual Safe States",
+      "difficulty": "Medium",
+      "description": "There is a directed graph of n nodes with each node labeled from 0 to n - 1. The graph is represented by a 0-indexed 2D integer array graph where graph[i] is an integer array of nodes adjacent to node i, meaning there is an edge from node i to each node in graph[i].\nA node is a terminal node if there are no outgoing edges. A node is a safe node if every possible path starting from that node leads to a terminal node (or another safe node).\nReturn an array containing all the safe nodes of the graph. The answer should be sorted in ascending order.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\nn == graph.length\n1 <= n <= 104\n0 <= graph[i].length <= n\n0 <= graph[i][j] <= n - 1\ngraph[i] is sorted in a strictly increasing order.\nThe graph may contain self-loops.\nThe number of edges in the graph will be in the range [1, 4 * 104].",
+      "tags": [
+        "Depth-First Search",
+        "Breadth-First Search",
+        "Graph",
+        "Topological Sort"
+      ],
+      "slug": "find-eventual-safe-states",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1742718059",
+          "runtime": "53 ms",
+          "memory": "63.7 MB",
+          "language": "cpp",
+          "id": "1583118754",
+          "code": "class Solution {\npublic:\n    vector<int> eventualSafeNodes(vector<vector<int>>& graph) {\n          int n = graph.size();\n    vector<int> revadj[n];\n    vector<int> outdeg(n);\n    for (int i = 0; i < n; i++) {\n        outdeg[i] += graph[i].size();\n        for (auto j : graph[i]) {\n            revadj[j].push_back(i);\n        }\n    }\n\n    queue<int> q;\n    for (int i = 0; i < n; i++) {\n        if (outdeg[i] == 0) q.push(i);\n    }\n\n    vector<int> ans;\n\n    while (!q.empty()) {\n        int siz = q.size();\n        while (siz--) {\n            int node = q.front();\n            q.pop();\n            ans.push_back(node);\n\n           \n            for (auto v : revadj[node]) {\n                outdeg[v]--;\n                if (outdeg[v] == 0) {\n                    q.push(v);\n                }\n            }\n        }\n    }\n\n    sort(ans.begin(), ans.end());\n    return ans;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Rotate String",
+      "difficulty": "Easy",
+      "description": "Given two strings s and goal, return true if and only if s can become goal after some number of shifts on s.\nA shift on s consists of moving the leftmost character of s to the rightmost position.\n\nFor example, if s = \"abcde\", then it will be \"bcdea\" after one shift.\n\nExample 1:\nExample 2:\n\nConstraints:\n\n1 <= s.length, goal.length <= 100\ns and goal consist of lowercase English letters.",
+      "tags": [
+        "String",
+        "String Matching"
+      ],
+      "slug": "rotate-string",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1734703722",
+          "runtime": "0 ms",
+          "memory": "8.1 MB",
+          "language": "cpp",
+          "id": "1483792219",
+          "code": "class Solution {\npublic:\n    bool rotateString(string s, string goal) {\n        if (s.length() != goal.length()) return false; \n\n        string rotated = s + s; \n        return rotated.find(goal) != string::npos; \n    }\n};\n"
+        }
+      ]
+    },
+    {
+      "title": "Is Graph Bipartite?",
+      "difficulty": "Medium",
+      "description": "There is an undirected graph with n nodes, where each node is numbered between 0 and n - 1. You are given a 2D array graph, where graph[u] is an array of nodes that node u is adjacent to. More formally, for each v in graph[u], there is an undirected edge between node u and node v. The graph has the following properties:\n\nThere are no self-edges (graph[u] does not contain u).\nThere are no parallel edges (graph[u] does not contain duplicate values).\nIf v is in graph[u], then u is in graph[v] (the graph is undirected).\nThe graph may not be connected, meaning there may be two nodes u and v such that there is no path between them.\n\nA graph is bipartite if the nodes can be partitioned into two independent sets A and B such that every edge in the graph connects a node in set A and a node in set B.\nReturn true if and only if it is bipartite.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\ngraph.length == n\n1 <= n <= 100\n0 <= graph[u].length < n\n0 <= graph[u][i] <= n - 1\ngraph[u] does not contain u.\nAll the values of graph[u] are unique.\nIf graph[u] contains v, then graph[v] contains u.",
+      "tags": [
+        "Depth-First Search",
+        "Breadth-First Search",
+        "Union Find",
+        "Graph"
+      ],
+      "slug": "is-graph-bipartite",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1742375240",
+          "runtime": "4 ms",
+          "memory": "17.3 MB",
+          "language": "cpp",
+          "id": "1578881236",
+          "code": "class Solution {\npublic:\n    bool dfs(int node,int color,vector<vector<int>>&adj,vector<int>&vis){\n         vis[node]=color;\n         for(auto v: adj[node]){\n            if(!vis[v]&&!dfs(v,-color,adj,vis)){\n                return false;\n            }\n            if(vis[v]==color){\n                return false;\n            }\n         }\n         return true;\n    }\n    bool isBipartite(vector<vector<int>>& graph) {\n        int n=graph.size();\n        vector<int>vis(n);\n        for(int i=0;i<n;i++){\n            if(!vis[i]&&!dfs(i,1,graph,vis)){\n                return false;\n            }\n        }\n        return true;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Next Greater Element II",
+      "difficulty": "Medium",
+      "description": "Given a circular integer array nums (i.e., the next element of nums[nums.length - 1] is nums[0]), return the next greater number for every element in nums.\nThe next greater number of a number x is the first greater number to its traversing-order next in the array, which means you could search circularly to find its next greater number. If it doesn't exist, return -1 for this number.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\n1 <= nums.length <= 104\n-109 <= nums[i] <= 109",
+      "tags": [
+        "Array",
+        "Stack",
+        "Monotonic Stack"
+      ],
+      "slug": "next-greater-element-ii",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1737309927",
+          "runtime": "4 ms",
+          "memory": "28.5 MB",
+          "language": "cpp",
+          "id": "1513809363",
+          "code": "class Solution {\npublic:\n    vector<int> nextGreaterElements(vector<int>& nums) {\n        int n = nums.size();\n        vector<int> ans(n, -1);\n        stack<int> st;\n     for (int i=2*n-1;i>=0;i--){\n        int num = nums[i % n];\n         while(!st.empty() && st.top() <= num) {\n                st.pop();\n            }\n         if(!st.empty() && i < n) {\n                ans[i] = st.top();\n            }\n        st.push(num);\n     }\n         return ans;\n        \n       \n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Next Greater Element I",
+      "difficulty": "Easy",
+      "description": "The next greater element of some element x in an array is the first greater element that is to the right of x in the same array.\nYou are given two distinct 0-indexed integer arrays nums1 and nums2, where nums1 is a subset of nums2.\nFor each 0 <= i < nums1.length, find the index j such that nums1[i] == nums2[j] and determine the next greater element of nums2[j] in nums2. If there is no next greater element, then the answer for this query is -1.\nReturn an array ans of length nums1.length such that ans[i] is the next greater element as described above.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\n1 <= nums1.length <= nums2.length <= 1000\n0 <= nums1[i], nums2[i] <= 104\nAll integers in nums1 and nums2 are unique.\nAll the integers of nums1 also appear in nums2.\n\nFollow up: Could you find an O(nums1.length + nums2.length) solution?",
+      "tags": [
+        "Array",
+        "Hash Table",
+        "Stack",
+        "Monotonic Stack"
+      ],
+      "slug": "next-greater-element-i",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1736162097",
+          "runtime": "0 ms",
+          "memory": "12.8 MB",
+          "language": "cpp",
+          "id": "1499463470",
+          "code": "class Solution {\npublic:\n    vector<int> nextGreaterElement(vector<int>& nums1, vector<int>& nums2) {\n        vector<int> ans(nums1.size(),-1);\n        unordered_map<int,int>nextGreater;\n         stack<int>st;\n          for(int num : nums2){\n             while(!st.empty()&& st.top()<num){\n                nextGreater[st.top()] = num;\n                   st.pop();\n                }\n             st.push(num);\n            }\n             for(int i = 0; i < nums1.size(); i++) {\n            if(nextGreater.count(nums1[i])) {\n                ans[i] = nextGreater[nums1[i]];\n            }\n        }\n        \n        return ans;      \n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Max Consecutive Ones",
+      "difficulty": "Easy",
+      "description": "Given a binary array nums, return the maximum number of consecutive 1's in the array.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\n1 <= nums.length <= 105\nnums[i] is either 0 or 1.",
+      "tags": [
+        "Array"
+      ],
+      "slug": "max-consecutive-ones",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1733862312",
+          "runtime": "2 ms",
+          "memory": "50.1 MB",
+          "language": "cpp",
+          "id": "1475587389",
+          "code": "class Solution {\npublic:\n    int findMaxConsecutiveOnes(vector<int>& nums) {\n        int maxi =0;\n        int cnt=0;\n        for (int i=0;i<nums.size();i++){\n            if(nums[i]==1){\n                cnt++;\n                maxi=max(maxi,cnt);\n            }\n            else{\n                cnt=0;\n            }\n        }\n        return maxi;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Assign Cookies",
+      "difficulty": "Easy",
+      "description": "Assume you are an awesome parent and want to give your children some cookies. But, you should give each child at most one cookie.\nEach child i has a greed factor g[i], which is the minimum size of a cookie that the child will be content with; and each cookie j has a size s[j]. If s[j] >= g[i], we can assign the cookie j to the child i, and the child i will be content. Your goal is to maximize the number of your content children and output the maximum number.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\n1 <= g.length <= 3 * 104\n0 <= s.length <= 3 * 104\n1 <= g[i], s[j] <= 231 - 1\n\nNote: This question is the same as 2410: Maximum Matching of Players With Trainers.",
+      "tags": [
+        "Array",
+        "Two Pointers",
+        "Greedy",
+        "Sorting"
+      ],
+      "slug": "assign-cookies",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1737558203",
+          "runtime": "7 ms",
+          "memory": "44.6 MB",
+          "language": "cpp",
+          "id": "1516963869",
+          "code": "#include <algorithm>\n\nclass Solution {\npublic:\n   int findContentChildren(vector<int>& g, vector<int>& s) {\n      sort(g.begin(), g.end());\n        sort(s.begin(), s.end());\n        int r = 0; \n        int i = 0; \n        int j = 0; \n        while (i < g.size() && j < s.size()) {\n            if (s[j] >= g[i]) {\n                r++; \n                i++; \n            }\n            j++; \n        }\n\nreturn r;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Sort Characters By Frequency",
+      "difficulty": "Medium",
+      "description": "Given a string s, sort it in decreasing order based on the frequency of the characters. The frequency of a character is the number of times it appears in the string.\nReturn the sorted string. If there are multiple answers, return any of them.\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\n1 <= s.length <= 5 * 105\ns consists of uppercase and lowercase English letters and digits.",
+      "tags": [
+        "Hash Table",
+        "String",
+        "Sorting",
+        "Heap (Priority Queue)",
+        "Bucket Sort",
+        "Counting"
+      ],
+      "slug": "sort-characters-by-frequency",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1734720696",
+          "runtime": "0 ms",
+          "memory": "11.2 MB",
+          "language": "cpp",
+          "id": "1483997788",
+          "code": "class Solution {\npublic:\n    string frequencySort(string s) {\n       unordered_map<char, int> mp;\n    for (auto c : s) {\n        mp[c]++;\n    }\n\n    priority_queue<pair<int, char>> pq;\n    for (auto it : mp) {\n        pq.push({ it.second, it.first });\n    }\n\n    string ans = \"\";\n    while (!pq.empty()) {\n        auto curr = pq.top();\n        pq.pop();\n        ans.append(curr.first, curr.second);\n    }\n\n    return ans;\n    }\n};\n"
+        }
+      ]
+    },
+    {
+      "title": "Remove K Digits",
+      "difficulty": "Medium",
+      "description": "Given string num representing a non-negative integer num, and an integer k, return the smallest possible integer after removing k digits from num.\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\n1 <= k <= num.length <= 105\nnum consists of only digits.\nnum does not have any leading zeros except for the zero itself.",
+      "tags": [
+        "String",
+        "Stack",
+        "Greedy",
+        "Monotonic Stack"
+      ],
+      "slug": "remove-k-digits",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1736791878",
+          "runtime": "0 ms",
+          "memory": "11.2 MB",
+          "language": "cpp",
+          "id": "1507546659",
+          "code": "class Solution {\npublic:\n    string removeKdigits(string num, int k) {\n        if (k >= num.length()) return \"0\";\n        if (k == 0) return num;\n        \n        string result;\n        \n        for (char digit : num) {\n            while (k > 0 && !result.empty() && result.back() > digit) {\n                result.pop_back();\n                k--;\n            }\n            result.push_back(digit);\n        }\n        \n        while (k > 0 && !result.empty()) {\n            result.pop_back();\n            k--;\n        }\n        \n        int start_pos = 0;\n        while (start_pos < result.length() && result[start_pos] == '0') {\n            start_pos++;\n        }\n        result = result.substr(start_pos);\n        \n        return result.empty() ? \"0\" : result;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Odd Even Linked List",
+      "difficulty": "Medium",
+      "description": "Given the head of a singly linked list, group all the nodes with odd indices together followed by the nodes with even indices, and return the reordered list.\nThe first node is considered odd, and the second node is even, and so on.\nNote that the relative order inside both the even and odd groups should remain as it was in the input.\nYou must solve the problem in O(1) extra space complexity and O(n) time complexity.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\nThe number of nodes in the linked list is in the range [0, 104].\n-106 <= Node.val <= 106",
+      "tags": [
+        "Linked List"
+      ],
+      "slug": "odd-even-linked-list",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1735212912",
+          "runtime": "0 ms",
+          "memory": "15.6 MB",
+          "language": "cpp",
+          "id": "1488807117",
+          "code": "/**\n * Definition for singly-linked list.\n * struct ListNode {\n *     int val;\n *     ListNode *next;\n *     ListNode() : val(0), next(nullptr) {}\n *     ListNode(int x) : val(x), next(nullptr) {}\n *     ListNode(int x, ListNode *next) : val(x), next(next) {}\n * };\n */\nclass Solution {\npublic:\n  ListNode* oddEvenList(ListNode* head) {\n    if(!head || !head->next) return head;\n    \n    ListNode* odd = head;\n    ListNode* even = head->next;\n    ListNode* evenHead = even; \n    \n    while(even != nullptr && even->next != nullptr) {\n        odd->next = even->next;\n        odd = odd->next;\n        even->next = odd->next;\n        even = even->next;\n    }\n    \n    odd->next = evenHead;\n    return head;\n}\n};"
+        }
+      ]
+    },
+    {
+      "title": "Move Zeroes",
+      "difficulty": "Easy",
+      "description": "Given an integer array nums, move all 0's to the end of it while maintaining the relative order of the non-zero elements.\nNote that you must do this in-place without making a copy of the array.\n\nExample 1:\nExample 2:\n\nConstraints:\n\n1 <= nums.length <= 104\n-231 <= nums[i] <= 231 - 1\n\nFollow up: Could you minimize the total number of operations done?",
+      "tags": [
+        "Array",
+        "Two Pointers"
+      ],
+      "slug": "move-zeroes",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1721578775",
+          "runtime": "19 ms",
+          "memory": "21.8 MB",
+          "language": "cpp",
+          "id": "1328623562",
+          "code": "class Solution {\npublic:\n   int next_nonzero(vector<int> &a, int &j)\n{\n    while (j < a.size())\n    {\n        if (a[j] != 0)\n            return j;\n        j++;\n    }\n    return -1;\n}\n void moveZeroes(vector<int> &nums)\n{\n    int j = -1; // is to find the next non zero element\n    // i signifies that upto here all elements are non-zero\n    for (int i = 0; i < nums.size(); i++)\n    {\n        if (nums[i] != 0)\n            continue;\n        if (j == -1)\n            j = i + 1;\n        int nxt_non0 = next_nonzero(nums, j);\n        if (nxt_non0 == -1)\n            return;\n        swap(nums[i], nums[nxt_non0]);\n    }\n}\n\n};"
+        }
+      ]
+    },
+    {
+      "title": "Missing Number",
+      "difficulty": "Easy",
+      "description": "Given an array nums containing n distinct numbers in the range [0, n], return the only number in the range that is missing from the array.\n\nExample 1:\n\nInput: nums = [3,0,1]\nOutput: 2\nExplanation:\nn = 3 since there are 3 numbers, so all numbers are in the range [0,3]. 2 is the missing number in the range since it does not appear in nums.\n\nExample 2:\n\nInput: nums = [0,1]\nOutput: 2\nExplanation:\nn = 2 since there are 2 numbers, so all numbers are in the range [0,2]. 2 is the missing number in the range since it does not appear in nums.\n\nExample 3:\n\nInput: nums = [9,6,4,2,3,5,7,0,1]\nOutput: 8\nExplanation:\nn = 9 since there are 9 numbers, so all numbers are in the range [0,9]. 8 is the missing number in the range since it does not appear in nums.\n\nConstraints:\n\nn == nums.length\n1 <= n <= 104\n0 <= nums[i] <= n\nAll the numbers of nums are unique.\n\nFollow up: Could you implement a solution using only O(1) extra space complexity and O(n) runtime complexity?",
+      "tags": [
+        "Array",
+        "Hash Table",
+        "Math",
+        "Binary Search",
+        "Bit Manipulation",
+        "Sorting"
+      ],
+      "slug": "missing-number",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1733858494",
+          "runtime": "0 ms",
+          "memory": "21.8 MB",
+          "language": "cpp",
+          "id": "1475551306",
+          "code": "class Solution {\npublic:\n    int missingNumber(vector<int>& nums) {\n        int n = nums.size();\n        int expectedSum = n * (n + 1) / 2; // Sum of first n natural numbers\n        int actualSum = 0;\n        \n        for (int num : nums) {\n            actualSum += num; // Calculate the sum of elements in the array\n        }\n        \n        return expectedSum - actualSum; // The difference is the missing number\n    }\n};\n"
+        }
+      ]
+    },
+    {
+      "title": "Valid Anagram",
+      "difficulty": "Easy",
+      "description": "Given two strings s and t, return true if t is an anagram of s, and false otherwise.\n\nExample 1:\n\nInput: s = \"anagram\", t = \"nagaram\"\nOutput: true\n\nExample 2:\n\nInput: s = \"rat\", t = \"car\"\nOutput: false\n\nConstraints:\n\n1 <= s.length, t.length <= 5 * 104\ns and t consist of lowercase English letters.\n\nFollow up: What if the inputs contain Unicode characters? How would you adapt your solution to such a case?",
+      "tags": [
+        "Hash Table",
+        "String",
+        "Sorting"
+      ],
+      "slug": "valid-anagram",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1734705318",
+          "runtime": "0 ms",
+          "memory": "9.8 MB",
+          "language": "cpp",
+          "id": "1483810104",
+          "code": "class Solution {\npublic:\n    bool isAnagram(string s, string t) {\n        if (s.size() != t.size()) return false;\n\n        unordered_map<char, int> count;\n\n        for (int i = 0; i < s.size(); i++) {\n            count[s[i]]++;\n            count[t[i]]--;\n        }\n\n        for (auto& entry : count) {\n            if (entry.second != 0) return false;\n        }\n\n        return true;\n    }\n};\n"
+        }
+      ]
+    },
+    {
+      "title": "Delete Node in a Linked List",
+      "difficulty": "Medium",
+      "description": "There is a singly-linked list head and we want to delete a node node in it.\nYou are given the node to be deleted node. You will not be given access to the first node of head.\nAll the values of the linked list are unique, and it is guaranteed that the given node node is not the last node in the linked list.\nDelete the given node. Note that by deleting the node, we do not mean removing it from memory. We mean:\n\nThe value of the given node should not exist in the linked list.\nThe number of nodes in the linked list should decrease by one.\nAll the values before node should be in the same order.\nAll the values after node should be in the same order.\n\nCustom testing:\n\nFor the input, you should provide the entire linked list head and the node to be given node. node should not be the last node of the list and should be an actual node in the list.\nWe will build the linked list and pass the node to your function.\nThe output will be the entire list after calling your function.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\nThe number of the nodes in the given list is in the range [2, 1000].\n-1000 <= Node.val <= 1000\nThe value of each node in the list is unique.\nThe node to be deleted is in the list and is not a tail node.",
+      "tags": [
+        "Linked List"
+      ],
+      "slug": "delete-node-in-a-linked-list",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1734979717",
+          "runtime": "5 ms",
+          "memory": "12.3 MB",
+          "language": "cpp",
+          "id": "1486565048",
+          "code": "/**\n * Definition for singly-linked list.\n * struct ListNode {\n *     int val;\n *     ListNode *next;\n *     ListNode(int x) : val(x), next(NULL) {}\n * };\n */\nclass Solution {\npublic:\n    void deleteNode(ListNode* node) {\n        node->val = node->next->val;\n        \n        ListNode* temp = node->next;\n        \n        node->next = node->next->next;\n        \n        delete temp;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Palindrome Linked List",
+      "difficulty": "Easy",
+      "description": "Given the head of a singly linked list, return true if it is a palindrome or false otherwise.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\nThe number of nodes in the list is in the range [1, 105].\n0 <= Node.val <= 9\n\nFollow up: Could you do it in O(n) time and O(1) space?",
+      "tags": [
+        "Linked List",
+        "Two Pointers",
+        "Stack",
+        "Recursion"
+      ],
+      "slug": "palindrome-linked-list",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1737051410",
+          "runtime": "1 ms",
+          "memory": "122 MB",
+          "language": "cpp",
+          "id": "1510750107",
+          "code": "/**\n * Definition for singly-linked list.\n * struct ListNode {\n *     int val;\n *     ListNode *next;\n *     ListNode() : val(0), next(nullptr) {}\n *     ListNode(int x) : val(x), next(nullptr) {}\n *     ListNode(int x, ListNode *next) : val(x), next(next) {}\n * };\n */\nclass Solution {\npublic:\n   bool isPalindrome(ListNode* head) {\n    if(!head || !head->next) return true;\n    \n    ListNode *slow = head, *fast = head;\n    \n    while(fast->next && fast->next->next) {\n        slow = slow->next;\n        fast = fast->next->next;\n    }\n    \n    ListNode *prev = NULL;\n    ListNode *curr = slow->next;\n    \n    while(curr) {\n        ListNode *next = curr->next;\n        curr->next = prev;\n        prev = curr;\n        curr = next;\n    }\n    \n    slow->next = prev;\n    slow = slow->next;\n    \n    while(slow) {\n        if(head->val != slow->val) return false;\n        head = head->next;\n        slow = slow->next;\n    }\n    \n    return true;\n}\n};"
+        }
+      ]
+    },
+    {
+      "title": "Implement Queue using Stacks",
+      "difficulty": "Easy",
+      "description": "Implement a first in first out (FIFO) queue using only two stacks. The implemented queue should support all the functions of a normal queue (push, peek, pop, and empty).\nImplement the MyQueue class:\n\nvoid push(int x) Pushes element x to the back of the queue.\nint pop() Removes the element from the front of the queue and returns it.\nint peek() Returns the element at the front of the queue.\nboolean empty() Returns true if the queue is empty, false otherwise.\n\nNotes:\n\nYou must use only standard operations of a stack, which means only push to top, peek/pop from top, size, and is empty operations are valid.\nDepending on your language, the stack may not be supported natively. You may simulate a stack using a list or deque (double-ended queue) as long as you use only a stack's standard operations.\n\nExample 1:\n\nConstraints:\n\n1 <= x <= 9\nAt most 100 calls will be made to push, pop, peek, and empty.\nAll the calls to pop and peek are valid.\n\nFollow-up: Can you implement the queue such that each operation is amortized O(1) time complexity? In other words, performing n operations will take overall O(n) time even if one of those operations may take longer.",
+      "tags": [
+        "Stack",
+        "Design",
+        "Queue"
+      ],
+      "slug": "implement-queue-using-stacks",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1735841631",
+          "runtime": "0 ms",
+          "memory": "9.6 MB",
+          "language": "cpp",
+          "id": "1495412389",
+          "code": "class MyQueue {\nprivate:\n   stack<int> s1; // for push\n   stack<int> s2; // for pop\n   \npublic:\n   MyQueue() {}\n   \n   void push(int x) {\n       s1.push(x);\n   }\n   \n   int pop() {\n       if(s2.empty()) {\n           while(!s1.empty()) {\n               s2.push(s1.top());\n               s1.pop();\n           }\n       }\n       int val = s2.top();\n       s2.pop();\n       return val;\n   }\n   \n   int peek() {\n       if(s2.empty()) {\n           while(!s1.empty()) {\n               s2.push(s1.top());\n               s1.pop();\n           }\n       }\n       return s2.top();\n   }\n   \n   bool empty() {\n       return s1.empty() && s2.empty();\n   }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Implement Stack using Queues",
+      "difficulty": "Easy",
+      "description": "Implement a last-in-first-out (LIFO) stack using only two queues. The implemented stack should support all the functions of a normal stack (push, top, pop, and empty).\nImplement the MyStack class:\n\nvoid push(int x) Pushes element x to the top of the stack.\nint pop() Removes the element on the top of the stack and returns it.\nint top() Returns the element on the top of the stack.\nboolean empty() Returns true if the stack is empty, false otherwise.\n\nNotes:\n\nYou must use only standard operations of a queue, which means that only push to back, peek/pop from front, size and is empty operations are valid.\nDepending on your language, the queue may not be supported natively. You may simulate a queue using a list or deque (double-ended queue) as long as you use only a queue's standard operations.\n\nExample 1:\n\nConstraints:\n\n1 <= x <= 9\nAt most 100 calls will be made to push, pop, top, and empty.\nAll the calls to pop and top are valid.\n\nFollow-up: Can you implement the stack using only one queue?",
+      "tags": [
+        "Stack",
+        "Design",
+        "Queue"
+      ],
+      "slug": "implement-stack-using-queues",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1736061064",
+          "runtime": "0 ms",
+          "memory": "9.5 MB",
+          "language": "cpp",
+          "id": "1498252777",
+          "code": "#include <queue>\nusing namespace std;\n\nclass MyStack {\nprivate:\n    queue<int> q;\n\npublic:\n    MyStack() {\n    }\n    \n    void push(int x) {\n        int s = q.size();\n        q.push(x);\n        for (int i = 0; i < s; i++) {\n            q.push(q.front());\n            q.pop();\n        }\n    }\n    \n    int pop() {\n        int n = q.front();\n        q.pop();\n        return n;\n    }\n    \n    int top() {\n        return q.front();\n    }\n    \n    bool empty() {\n        return q.empty();\n    }\n};\n"
+        }
+      ]
+    },
+    {
+      "title": "Course Schedule II",
+      "difficulty": "Medium",
+      "description": "There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.\n\nFor example, the pair [0, 1], indicates that to take course 0 you have to first take course 1.\n\nReturn the ordering of courses you should take to finish all courses. If there are many valid answers, return any of them. If it is impossible to finish all courses, return an empty array.\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\n1 <= numCourses <= 2000\n0 <= prerequisites.length <= numCourses * (numCourses - 1)\nprerequisites[i].length == 2\n0 <= ai, bi < numCourses\nai != bi\nAll the pairs [ai, bi] are distinct.",
+      "tags": [
+        "Depth-First Search",
+        "Breadth-First Search",
+        "Graph",
+        "Topological Sort"
+      ],
+      "slug": "course-schedule-ii",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1742632845",
+          "runtime": "8 ms",
+          "memory": "18.6 MB",
+          "language": "cpp",
+          "id": "1582101378",
+          "code": "class Solution {\npublic:\n    vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites) {\n        vector<int> indeg(numCourses, 0);\n        vector<vector<int>> adj(numCourses);\n        vector<int> ans;  \n        \n        for (auto it : prerequisites) {\n            indeg[it[0]]++;         \n            adj[it[1]].push_back(it[0]); \n        }\n\n        queue<int> q;\n\n        for (int i = 0; i < numCourses; i++) {\n            if (indeg[i] == 0) {\n                q.push(i);\n            }\n        }\n\n        while (!q.empty()) {\n            int node = q.front();\n            q.pop();\n            ans.push_back(node);  \n            for (auto v : adj[node]) {\n                indeg[v]--;\n                if (indeg[v] == 0) {\n                    q.push(v);\n                }\n            }\n        }\n\n        if (ans.size() == numCourses) {\n            return ans;\n        }\n        return vector<int>();  \n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Course Schedule",
+      "difficulty": "Medium",
+      "description": "There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.\n\nFor example, the pair [0, 1], indicates that to take course 0 you have to first take course 1.\n\nReturn true if you can finish all courses. Otherwise, return false.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\n1 <= numCourses <= 2000\n0 <= prerequisites.length <= 5000\nprerequisites[i].length == 2\n0 <= ai, bi < numCourses\nAll the pairs prerequisites[i] are unique.",
+      "tags": [
+        "Depth-First Search",
+        "Breadth-First Search",
+        "Graph",
+        "Topological Sort"
+      ],
+      "slug": "course-schedule",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1742632365",
+          "runtime": "8 ms",
+          "memory": "20.1 MB",
+          "language": "cpp",
+          "id": "1582096107",
+          "code": "class Solution {\npublic:\n    bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {\n        vector<int>indeg(numCourses,0);\n        vector<vector<int>> adj(numCourses);\n        for(auto it:prerequisites){\n            indeg[it[0]]++;\n            adj[it[1]].push_back(it[0]);\n        }\n        queue<int>q;\n        for(int i=0;i<numCourses;i++){\n            if(indeg[i]==0){\n                q.push(i);\n            }\n        }\n        int cnt=0;\n        while(!q.empty()){\n            int node=q.front();\n            q.pop();\n            cnt++;\n            for(auto v:adj[node]){\n                indeg[v]--;\n                if(indeg[v]==0){\n                    q.push(v);\n                }\n            }\n        }\n        return cnt==numCourses;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Reverse Linked List",
+      "difficulty": "Easy",
+      "description": "Given the head of a singly linked list, reverse the list, and return the reversed list.\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\nThe number of nodes in the list is the range [0, 5000].\n-5000 <= Node.val <= 5000\n\nFollow up: A linked list can be reversed either iteratively or recursively. Could you implement both?",
+      "tags": [
+        "Linked List",
+        "Recursion"
+      ],
+      "slug": "reverse-linked-list",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1735061658",
+          "runtime": "0 ms",
+          "memory": "13.7 MB",
+          "language": "cpp",
+          "id": "1487366056",
+          "code": "/**\n * Definition for singly-linked list.\n * struct ListNode {\n *     int val;\n *     ListNode *next;\n *     ListNode() : val(0), next(nullptr) {}\n *     ListNode(int x) : val(x), next(nullptr) {}\n *     ListNode(int x, ListNode *next) : val(x), next(next) {}\n * };\n */\nclass Solution {\npublic:\n    ListNode* reverseList(ListNode* head) {\n            if (head == NULL || head->next == NULL)\n             {\n            return head;\n             }\n          \n  ListNode* reversedList = reverseList(head->next);  \n         \n          head->next->next=head;\n          head->next=NULL;   \n          return reversedList;\n\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Isomorphic Strings",
+      "difficulty": "Easy",
+      "description": "Given two strings s and t, determine if they are isomorphic.\nTwo strings s and t are isomorphic if the characters in s can be replaced to get t.\nAll occurrences of a character must be replaced with another character while preserving the order of characters. No two characters may map to the same character, but a character may map to itself.\n\nExample 1:\n\nInput: s = \"egg\", t = \"add\"\nOutput: true\nExplanation:\nThe strings s and t can be made identical by:\n\nMapping 'e' to 'a'.\nMapping 'g' to 'd'.\n\nExample 2:\n\nInput: s = \"foo\", t = \"bar\"\nOutput: false\nExplanation:\nThe strings s and t can not be made identical as 'o' needs to be mapped to both 'a' and 'r'.\n\nExample 3:\n\nInput: s = \"paper\", t = \"title\"\nOutput: true\n\nConstraints:\n\n1 <= s.length <= 5 * 104\nt.length == s.length\ns and t consist of any valid ascii character.",
+      "tags": [
+        "Hash Table",
+        "String"
+      ],
+      "slug": "isomorphic-strings",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1737138291",
+          "runtime": "0 ms",
+          "memory": "9.5 MB",
+          "language": "cpp",
+          "id": "1511782390",
+          "code": "class Solution {\npublic:\n   bool isIsomorphic(string s, string t) {\n   unordered_map<char, char> map1;\n   unordered_map<char, char> map2;\n   \n   for(int i = 0; i < s.length(); i++) {\n       char c1 = s[i];\n       char c2 = t[i];\n       \n       if(map1[c1] && map1[c1] != c2) {\n           return false;\n       }\n       if(map2[c2] && map2[c2] != c1) {\n           return false; \n       }\n       \n       map1[c1] = c2;\n       map2[c2] = c1;\n   }\n   \n   return true;\n}\n};"
+        }
+      ]
+    },
+    {
+      "title": "Binary Tree Right Side View",
+      "difficulty": "Medium",
+      "description": "Given the root of a binary tree, imagine yourself standing on the right side of it, return the values of the nodes you can see ordered from top to bottom.\n\nExample 1:\n\nInput: root = [1,2,3,null,5,null,4]\nOutput: [1,3,4]\nExplanation:\n\nExample 2:\n\nInput: root = [1,2,3,4,null,null,null,5]\nOutput: [1,3,4,5]\nExplanation:\n\nExample 3:\n\nInput: root = [1,null,3]\nOutput: [1,3]\n\nExample 4:\n\nInput: root = []\nOutput: []\n\nConstraints:\n\nThe number of nodes in the tree is in the range [0, 100].\n-100 <= Node.val <= 100",
+      "tags": [
+        "Tree",
+        "Depth-First Search",
+        "Breadth-First Search",
+        "Binary Tree"
+      ],
+      "slug": "binary-tree-right-side-view",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1740506781",
+          "runtime": "0 ms",
+          "memory": "15.6 MB",
+          "language": "cpp",
+          "id": "1555253127",
+          "code": "/**\n * Definition for a binary tree node.\n * struct TreeNode {\n *     int val;\n *     TreeNode *left;\n *     TreeNode *right;\n *     TreeNode() : val(0), left(nullptr), right(nullptr) {}\n *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n * };\n */\nclass Solution {\npublic:\n\n    void dfs(TreeNode* node,int depth,map<int,int>&mpp) {\n    if (node==NULL)return;\n        if (mpp.find(depth) == mpp.end()) {\n            mpp[depth] = node->val;\n        }\n\n        dfs(node->right, depth + 1, mpp);\n        dfs(node->left, depth + 1, mpp);\n\n    }\n    vector<int> rightSideView(TreeNode* root) {\n        vector<int>ans;\n        map<int,int>mpp;\n        dfs(root,0,mpp);\n\n        for(auto it:mpp){\n            ans.push_back(it.second);\n        }\n        return ans;\n    }\n\n};"
+        }
+      ]
+    },
+    {
+      "title": "Rotate Array",
+      "difficulty": "Medium",
+      "description": "Given an integer array nums, rotate the array to the right by k steps, where k is non-negative.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\n1 <= nums.length <= 105\n-231 <= nums[i] <= 231 - 1\n0 <= k <= 105\n\nFollow up:\n\nTry to come up with as many solutions as you can. There are at least three different ways to solve this problem.\nCould you do it in-place with O(1) extra space?",
+      "tags": [
+        "Array",
+        "Math",
+        "Two Pointers"
+      ],
+      "slug": "rotate-array",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1721577692",
+          "runtime": "17 ms",
+          "memory": "27.6 MB",
+          "language": "cpp",
+          "id": "1328606942",
+          "code": "class Solution {\npublic:\n    void rotate(vector<int>& nums, int k) {\n        int n = nums.size();\n        k %= n;\n        reverse(nums.begin(), nums.end());\n        reverse(nums.begin(), nums.begin() + k);\n        reverse(nums.begin() + k, nums.end());\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Word Ladder",
+      "difficulty": "Hard",
+      "description": "A transformation sequence from word beginWord to word endWord using a dictionary wordList is a sequence of words beginWord -> s1 -> s2 -> ... -> sk such that:\n\nEvery adjacent pair of words differs by a single letter.\nEvery si for 1 <= i <= k is in wordList. Note that beginWord does not need to be in wordList.\nsk == endWord\n\nGiven two words, beginWord and endWord, and a dictionary wordList, return the number of words in the shortest transformation sequence from beginWord to endWord, or 0 if no such sequence exists.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\n1 <= beginWord.length <= 10\nendWord.length == beginWord.length\n1 <= wordList.length <= 5000\nwordList[i].length == beginWord.length\nbeginWord, endWord, and wordList[i] consist of lowercase English letters.\nbeginWord != endWord\nAll the words in wordList are unique.",
+      "tags": [
+        "Hash Table",
+        "String",
+        "Breadth-First Search"
+      ],
+      "slug": "word-ladder",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1742294629",
+          "runtime": "457 ms",
+          "memory": "22.7 MB",
+          "language": "cpp",
+          "id": "1577815292",
+          "code": "class Solution {\npublic:\n    int ladderLength(string beginWord, string endWord, vector<string>& wordList) {\n        queue<pair<string, int>> q;\n        unordered_set<string> wordSet(wordList.begin(), wordList.end());\n        unordered_set<string> visited;\n\n        q.push({beginWord, 1});\n        visited.insert(beginWord);\n        while (!q.empty()) {\n            string currWord = q.front().first;\n            int level = q.front().second;\n            q.pop();\n            \n            for (char c = 'a'; c <= 'z'; c++) {\n                for (int i = 0; i < currWord.length(); i++) {\n                    string newWord = currWord;\n                    newWord[i] = c;\n\n                    if (wordSet.count(newWord)) {\n                        int matchCount = 0;\n                        for (int k = 0; k < newWord.length(); k++) {\n                            if (newWord[k] == currWord[k]) {\n                                matchCount++;\n                            }\n                        }\n                        if (matchCount >= 0) {\n                            cout << newWord << endl;\n                            if (newWord == endWord) {\n                                return level + 1;\n                            }\n                            if (!visited.count(newWord)) {\n                                q.push({newWord, level + 1});\n                                visited.insert(newWord);\n                            }\n                        }\n                    }\n                }\n            }\n        }\n        return 0;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Binary Tree Maximum Path Sum",
+      "difficulty": "Hard",
+      "description": "A path in a binary tree is a sequence of nodes where each pair of adjacent nodes in the sequence has an edge connecting them. A node can only appear in the sequence at most once. Note that the path does not need to pass through the root.\nThe path sum of a path is the sum of the node's values in the path.\nGiven the root of a binary tree, return the maximum path sum of any non-empty path.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\nThe number of nodes in the tree is in the range [1, 3 * 104].\n-1000 <= Node.val <= 1000",
+      "tags": [
+        "Dynamic Programming",
+        "Tree",
+        "Depth-First Search",
+        "Binary Tree"
+      ],
+      "slug": "binary-tree-maximum-path-sum",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1739130586",
+          "runtime": "0 ms",
+          "memory": "27.9 MB",
+          "language": "cpp",
+          "id": "1537366526",
+          "code": "/**\n * Definition for a binary tree node.\n * struct TreeNode {\n *     int val;\n *     TreeNode *left;\n *     TreeNode *right;\n *     TreeNode() : val(0), left(nullptr), right(nullptr) {}\n *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n * };\n */\nclass Solution {\npublic:\n    int maxPathSum(TreeNode* root) {\n        int maxSum = INT_MIN; \n        optimalPath(root, maxSum);\n        return maxSum;\n    }\n\nprivate:\n    int optimalPath(TreeNode* node, int& maxSum) {\n        if (node==NULL) return 0;\n        \n        int left = max(optimalPath(node->left, maxSum), 0);\n        int right = max(optimalPath(node->right, maxSum), 0);\n        \n        int currentPathSum = node->val + left + right;\n        maxSum = max(maxSum, currentPathSum);\n        \n        return node->val + max(left, right);\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Best Time to Buy and Sell Stock",
+      "difficulty": "Easy",
+      "description": "You are given an array prices where prices[i] is the price of a given stock on the ith day.\nYou want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock.\nReturn the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\n1 <= prices.length <= 105\n0 <= prices[i] <= 104",
+      "tags": [
+        "Array",
+        "Dynamic Programming"
+      ],
+      "slug": "best-time-to-buy-and-sell-stock",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1736618365",
+          "runtime": "0 ms",
+          "memory": "97.3 MB",
+          "language": "cpp",
+          "id": "1505336555",
+          "code": "class Solution {\npublic:\n    int maxProfit(vector<int>& prices) {\n         int maxPro = 0;\n    int n = prices.size();\n    int minPrice = INT_MAX;\n\n    for (int i = 0; i <n; i++) {\n        minPrice = min(minPrice, prices[i]);\n        maxPro = max(maxPro, prices[i] - minPrice);\n    }\n    \n    return maxPro;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Balanced Binary Tree",
+      "difficulty": "Easy",
+      "description": "Given a binary tree, determine if it is height-balanced.\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\nThe number of nodes in the tree is in the range [0, 5000].\n-104 <= Node.val <= 104",
+      "tags": [
+        "Tree",
+        "Depth-First Search",
+        "Binary Tree"
+      ],
+      "slug": "balanced-binary-tree",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1739099865",
+          "runtime": "0 ms",
+          "memory": "23.2 MB",
+          "language": "cpp",
+          "id": "1536901985",
+          "code": "/**\n * Definition for a binary tree node.\n * struct TreeNode {\n *     int val;\n *     TreeNode *left;\n *     TreeNode *right;\n *     TreeNode() : val(0), left(nullptr), right(nullptr) {}\n *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n * };\n */\nclass Solution {\npublic:\n    bool isBalanced(TreeNode* root) {\n        return checkHeight(root) != -1;\n    }\n\nprivate:\n    int checkHeight(TreeNode* node) {\n        if (node == nullptr) {\n            return 0;\n        }\n\n        int leftHeight = checkHeight(node->left);\n        if (leftHeight == -1) {\n            return -1;\n        }\n\n        int rightHeight = checkHeight(node->right);\n        if (rightHeight == -1) {\n            return -1;\n        }\n\n        if (abs(leftHeight - rightHeight) > 1) {\n            return -1;\n        }\n\n        return max(leftHeight, rightHeight) + 1;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Maximum Depth of Binary Tree",
+      "difficulty": "Easy",
+      "description": "Given the root of a binary tree, return its maximum depth.\nA binary tree's maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\nThe number of nodes in the tree is in the range [0, 104].\n-100 <= Node.val <= 100",
+      "tags": [
+        "Tree",
+        "Depth-First Search",
+        "Breadth-First Search",
+        "Binary Tree"
+      ],
+      "slug": "maximum-depth-of-binary-tree",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1739098050",
+          "runtime": "0 ms",
+          "memory": "19.1 MB",
+          "language": "cpp",
+          "id": "1536877946",
+          "code": "/**\n * Definition for a binary tree node.\n * struct TreeNode {\n *     int val;\n *     TreeNode *left;\n *     TreeNode *right;\n *     TreeNode() : val(0), left(nullptr), right(nullptr) {}\n *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n * };\n */\nclass Solution {\npublic:\n    int maxDepth(TreeNode* root) {\n       if (root==NULL){\n        return 0;\n       }else{\n      return max(maxDepth(root->left), maxDepth(root->right)) + 1;\n       }\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Binary Tree Zigzag Level Order Traversal",
+      "difficulty": "Medium",
+      "description": "Given the root of a binary tree, return the zigzag level order traversal of its nodes' values. (i.e., from left to right, then right to left for the next level and alternate between).\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\nThe number of nodes in the tree is in the range [0, 2000].\n-100 <= Node.val <= 100",
+      "tags": [
+        "Tree",
+        "Breadth-First Search",
+        "Binary Tree"
+      ],
+      "slug": "binary-tree-zigzag-level-order-traversal",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1740924572",
+          "runtime": "0 ms",
+          "memory": "15.2 MB",
+          "language": "cpp",
+          "id": "1560418424",
+          "code": "/**\n * Definition for a binary tree node.\n * struct TreeNode {\n *     int val;\n *     TreeNode *left;\n *     TreeNode *right;\n *     TreeNode() : val(0), left(nullptr), right(nullptr) {}\n *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n * };\n */\nclass Solution {\npublic:\n    vector<vector<int>> zigzagLevelOrder(TreeNode* root) {\n        if (!root) return {};\n        \n        vector<vector<int>> result;\n        queue<TreeNode*> q;\n        q.push(root);\n        bool leftToRight = true;\n\n        while (!q.empty()) {\n            int size = q.size();\n            vector<int> level(size);\n            \n            for (int i = 0; i < size; i++) {\n                TreeNode* node = q.front();\n                q.pop();\n                \n                level[leftToRight ? i : size-1-i] = node->val;\n                \n                if (node->left) q.push(node->left);\n                if (node->right) q.push(node->right);\n            }\n            \n            result.push_back(level);\n            leftToRight = !leftToRight;\n        }\n        \n        return result;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Binary Tree Level Order Traversal",
+      "difficulty": "Medium",
+      "description": "Given the root of a binary tree, return the level order traversal of its nodes' values. (i.e., from left to right, level by level).\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\nThe number of nodes in the tree is in the range [0, 2000].\n-1000 <= Node.val <= 1000",
+      "tags": [
+        "Tree",
+        "Breadth-First Search",
+        "Binary Tree"
+      ],
+      "slug": "binary-tree-level-order-traversal",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1739723146",
+          "runtime": "0 ms",
+          "memory": "17.1 MB",
+          "language": "cpp",
+          "id": "1545262393",
+          "code": "/**\n * Definition for a binary tree node.\n * struct TreeNode {\n *     int val;\n *     TreeNode *left;\n *     TreeNode *right;\n *     TreeNode() : val(0), left(nullptr), right(nullptr) {}\n *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n * };\n */\n\nclass Solution {\npublic:\n    vector<vector<int>> levelOrder(TreeNode* root) {\n        vector<vector<int>> result;\n        if (!root) return result;\n\n        queue<TreeNode*> q;\n        q.push(root);\n\n        while (!q.empty()) {\n            int size = q.size();\n            vector<int> row;\n\n            for (int i = 0; i < size; ++i) {\n                TreeNode* node = q.front();\n                q.pop();\n\n                row.push_back(node->val);\n\n                if (node->left) q.push(node->left);\n                if (node->right) q.push(node->right);\n            }\n\n            result.push_back(row);\n        }\n\n        return result;\n    }\n};\n"
+        }
+      ]
+    },
+    {
+      "title": "Symmetric Tree",
+      "difficulty": "Easy",
+      "description": "Given the root of a binary tree, check whether it is a mirror of itself (i.e., symmetric around its center).\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\nThe number of nodes in the tree is in the range [1, 1000].\n-100 <= Node.val <= 100\n\nFollow up: Could you solve it both recursively and iteratively?",
+      "tags": [
+        "Tree",
+        "Depth-First Search",
+        "Breadth-First Search",
+        "Binary Tree"
+      ],
+      "slug": "symmetric-tree",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1740509681",
+          "runtime": "0 ms",
+          "memory": "18.4 MB",
+          "language": "cpp",
+          "id": "1555304338",
+          "code": "/**\n * Definition for a binary tree node.\n * struct TreeNode {\n *     int val;\n *     TreeNode *left;\n *     TreeNode *right;\n *     TreeNode() : val(0), left(nullptr), right(nullptr) {}\n *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n * };\n */\nclass Solution {\npublic:\n    bool isSymmetric(TreeNode* root) {\n    return bfs(root->left,root->right);\n    }\n    bool bfs(TreeNode* left, TreeNode* right){\n        if(!left&&!right)return true;\n        if(!left||!right||left->val!=right->val)return false;\n    return bfs(left->left,right->right)&& bfs(left->right,right->left);\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Same Tree",
+      "difficulty": "Easy",
+      "description": "Given the roots of two binary trees p and q, write a function to check if they are the same or not.\nTwo binary trees are considered the same if they are structurally identical, and the nodes have the same value.\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\nThe number of nodes in both trees is in the range [0, 100].\n-104 <= Node.val <= 104",
+      "tags": [
+        "Tree",
+        "Depth-First Search",
+        "Breadth-First Search",
+        "Binary Tree"
+      ],
+      "slug": "same-tree",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1739217641",
+          "runtime": "0 ms",
+          "memory": "12.7 MB",
+          "language": "cpp",
+          "id": "1538523077",
+          "code": "/**\n * Definition for a binary tree node.\n * struct TreeNode {\n *     int val;\n *     TreeNode *left;\n *     TreeNode *right;\n *     TreeNode() : val(0), left(nullptr), right(nullptr) {}\n *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n * };\n */\nclass Solution {\npublic:\n    bool isSameTree(TreeNode* p, TreeNode* q) {\n        if (p == nullptr && q == nullptr) return true;\n        if (p == nullptr || q == nullptr) return false;\n        if (p->val != q->val) return false;\n        return isSameTree(p->left, q->left) && isSameTree(p->right, q->right);\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Binary Tree Inorder Traversal",
+      "difficulty": "Easy",
+      "description": "Given the root of a binary tree, return the inorder traversal of its nodes' values.\n\nExample 1:\n\nInput: root = [1,null,2,3]\nOutput: [1,3,2]\nExplanation:\n\nExample 2:\n\nInput: root = [1,2,3,4,5,null,8,null,null,6,7,9]\nOutput: [4,2,6,5,7,1,3,9,8]\nExplanation:\n\nExample 3:\n\nInput: root = []\nOutput: []\n\nExample 4:\n\nInput: root = [1]\nOutput: [1]\n\nConstraints:\n\nThe number of nodes in the tree is in the range [0, 100].\n-100 <= Node.val <= 100\n\nFollow up: Recursive solution is trivial, could you do it iteratively?",
+      "tags": [
+        "Stack",
+        "Tree",
+        "Depth-First Search",
+        "Binary Tree"
+      ],
+      "slug": "binary-tree-inorder-traversal",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1738933346",
+          "runtime": "0 ms",
+          "memory": "11 MB",
+          "language": "cpp",
+          "id": "1534739047",
+          "code": "/**\n * Definition for a binary tree node.\n * struct TreeNode {\n *     int val;\n *     TreeNode *left;\n *     TreeNode *right;\n *     TreeNode() : val(0), left(nullptr), right(nullptr) {}\n *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}\n *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}\n * };\n */\nclass Solution {\npublic:\n    vector<int> inorderTraversal(TreeNode* root) {\n        vector<int> result;\n        inorderHelper(root, result);\n        return result;\n    }\n\nprivate:\n    void inorderHelper(TreeNode* root, vector<int>& result) {\n        if (root != nullptr) {\n            inorderHelper(root->left, result);\n            result.push_back(root->val);\n            inorderHelper(root->right, result);\n        }\n    }\n};\n"
+        }
+      ]
+    },
+    {
+      "title": "Largest Rectangle in Histogram",
+      "difficulty": "Hard",
+      "description": "Given an array of integers heights representing the histogram's bar height where the width of each bar is 1, return the area of the largest rectangle in the histogram.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\n1 <= heights.length <= 105\n0 <= heights[i] <= 104",
+      "tags": [
+        "Array",
+        "Stack",
+        "Monotonic Stack"
+      ],
+      "slug": "largest-rectangle-in-histogram",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1736965838",
+          "runtime": "34 ms",
+          "memory": "80.3 MB",
+          "language": "cpp",
+          "id": "1509689785",
+          "code": "class Solution {\npublic:\n    int largestRectangleArea(vector<int>& heights) {\n        int n = heights.size();\n      stack < int > st;\n      int leftsmall[n], rightsmall[n];\n      for (int i = 0; i < n; i++) {\n        while (!st.empty() && heights[st.top()] >= heights[i]) {\n          st.pop();\n        }\n        if (st.empty())\n          leftsmall[i] = 0;\n        else\n          leftsmall[i] = st.top() + 1;\n        st.push(i);\n      }\n      // clear the stack to be re-used\n      while (!st.empty())\n        st.pop();\n\n      for (int i = n - 1; i >= 0; i--) {\n        while (!st.empty() && heights[st.top()] >= heights[i])\n          st.pop();\n\n        if (st.empty())\n          rightsmall[i] = n - 1;\n        else\n          rightsmall[i] = st.top() - 1;\n\n        st.push(i);\n      }\n      int maxA = 0;\n      for (int i = 0; i < n; i++) {\n        maxA = max(maxA, heights[i] * (rightsmall[i] - leftsmall[i] + 1));\n      }\n      return maxA;\n    }\n};\n"
+        }
+      ]
+    },
+    {
+      "title": "Search in Rotated Sorted Array II",
+      "difficulty": "Medium",
+      "description": "There is an integer array nums sorted in non-decreasing order (not necessarily with distinct values).\nBefore being passed to your function, nums is rotated at an unknown pivot index k (0 <= k < nums.length) such that the resulting array is [nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]] (0-indexed). For example, [0,1,2,4,4,4,5,6,6,7] might be rotated at pivot index 5 and become [4,5,6,6,7,0,1,2,4,4].\nGiven the array nums after the rotation and an integer target, return true if target is in nums, or false if it is not in nums.\nYou must decrease the overall operation steps as much as possible.\n\nExample 1:\nExample 2:\n\nConstraints:\n\n1 <= nums.length <= 5000\n-104 <= nums[i] <= 104\nnums is guaranteed to be rotated at some pivot.\n-104 <= target <= 104\n\nFollow up: This problem is similar to Search in Rotated Sorted Array, but nums may contain duplicates. Would this affect the runtime complexity? How and why?",
+      "tags": [
+        "Array",
+        "Binary Search"
+      ],
+      "slug": "search-in-rotated-sorted-array-ii",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1734514280",
+          "runtime": "0 ms",
+          "memory": "17.9 MB",
+          "language": "cpp",
+          "id": "1481886523",
+          "code": "class Solution {\npublic:\n    bool search(vector<int>& nums, int target) {\n          int n = nums.size(); \n    int low = 0, high = n - 1;\n    while (low <= high) {\n        int mid = (low + high) / 2;\n\n        \n        if (nums[mid] == target) return true;\n\n        if (nums[low] == nums[mid] && nums[mid] == nums[high]) {\n            low = low + 1;\n            high = high - 1;\n            continue;\n        }\n\n        if (nums[low] <= nums[mid]) {\n            if (nums[low] <= target && target <= nums[mid]) {\n                high = mid - 1;\n            }\n            else {\n                low = mid + 1;\n            }\n        }\n        else { \n            if (nums[mid] <= target && target <= nums[high]) {\n                low = mid + 1;\n            }\n            else {\n                high = mid - 1;\n            }\n        }\n    }\n    return false;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Sort Colors",
+      "difficulty": "Medium",
+      "description": "Given an array nums with n objects colored red, white, or blue, sort them in-place so that objects of the same color are adjacent, with the colors in the order red, white, and blue.\nWe will use the integers 0, 1, and 2 to represent the color red, white, and blue, respectively.\nYou must solve this problem without using the library's sort function.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\nn == nums.length\n1 <= n <= 300\nnums[i] is either 0, 1, or 2.\n\nFollow up: Could you come up with a one-pass algorithm using only constant extra space?",
+      "tags": [
+        "Array",
+        "Two Pointers",
+        "Sorting"
+      ],
+      "slug": "sort-colors",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1734012068",
+          "runtime": "0 ms",
+          "memory": "11.5 MB",
+          "language": "cpp",
+          "id": "1477034398",
+          "code": "class Solution {\npublic:\n    void sortColors(vector<int>& nums) {\n       int low =0;int mid =0;int high=nums.size()-1;\n       while(mid<=high){\n           if (nums[mid]==0){\n            swap(nums[low],nums[mid]);\n            low++;\n            mid++;\n           }\n          else if (nums[mid]==1){\n            mid++;\n           }\n           else{\n            swap(nums[mid],nums[high]);\n            high--;\n           }\n       }\n\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Set Matrix Zeroes",
+      "difficulty": "Medium",
+      "description": "Given an m x n integer matrix matrix, if an element is 0, set its entire row and column to 0's.\nYou must do it in place.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\nm == matrix.length\nn == matrix[0].length\n1 <= m, n <= 200\n-231 <= matrix[i][j] <= 231 - 1\n\nFollow up:\n\nA straightforward solution using O(mn) space is probably a bad idea.\nA simple improvement uses O(m + n) space, but still not the best solution.\nCould you devise a constant space solution?",
+      "tags": [
+        "Array",
+        "Hash Table",
+        "Matrix"
+      ],
+      "slug": "set-matrix-zeroes",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1734178791",
+          "runtime": "0 ms",
+          "memory": "18.6 MB",
+          "language": "cpp",
+          "id": "1478552557",
+          "code": "class Solution {\npublic:\n    void setZeroes(vector<vector<int>>& matrix) {\n        int n = matrix.size();\n        int m = matrix[0].size();\n        int col0 = 1; // To track the first column\n\n        // Step 1: Mark the first row and first column for zeroing\n        for (int i = 0; i < n; i++) {\n            for (int j = 0; j < m; j++) {\n                if (matrix[i][j] == 0) {\n                    matrix[i][0] = 0; // Mark the row\n                    if (j != 0)\n                        matrix[0][j] = 0; // Mark the column\n                    else\n                        col0 = 0; // First column should be zeroed\n                }\n            }\n        }\n\n        // Step 2: Iterate from (1,1) and update the elements\n        for (int i = 1; i < n; i++) {\n            for (int j = 1; j < m; j++) {\n                if (matrix[i][0] == 0 || matrix[0][j] == 0) {\n                    matrix[i][j] = 0;\n                }\n            }\n        }\n\n        // Step 3: Handle the first row\n        if (matrix[0][0] == 0) {\n            for (int j = 0; j < m; j++) {\n                matrix[0][j] = 0;\n            }\n        }\n\n        // Step 4: Handle the first column\n        if (col0 == 0) {\n            for (int i = 0; i < n; i++) {\n                matrix[i][0] = 0;\n            }\n        }\n    }\n};\n"
+        }
+      ]
+    },
+    {
+      "title": "Insert Interval",
+      "difficulty": "Medium",
+      "description": "You are given an array of non-overlapping intervals intervals where intervals[i] = [starti, endi] represent the start and the end of the ith interval and intervals is sorted in ascending order by starti. You are also given an interval newInterval = [start, end] that represents the start and end of another interval.\nInsert newInterval into intervals such that intervals is still sorted in ascending order by starti and intervals still does not have any overlapping intervals (merge overlapping intervals if necessary).\nReturn intervals after the insertion.\nNote that you don't need to modify intervals in-place. You can make a new array and return it.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\n0 <= intervals.length <= 104\nintervals[i].length == 2\n0 <= starti <= endi <= 105\nintervals is sorted by starti in ascending order.\nnewInterval.length == 2\n0 <= start <= end <= 105",
+      "tags": [
+        "Array"
+      ],
+      "slug": "insert-interval",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1738163008",
+          "runtime": "0 ms",
+          "memory": "21.8 MB",
+          "language": "cpp",
+          "id": "1524437462",
+          "code": "class Solution {\npublic:\n    vector<vector<int>> insert(vector<vector<int>>& intervals, vector<int>& newInterval) {\n        int n = intervals.size();\n        int low = newInterval[0];\n        int high = newInterval[1]; \n        vector<vector<int>> result;\n\n        int i = 0;\n        while (i < n && intervals[i][1] < low) {\n            result.push_back(intervals[i]);\n            i++;\n        }\n\n        while (i < n && intervals[i][0] <= high) {\n            low = min(low, intervals[i][0]); \n            high = max(high, intervals[i][1]); \n            i++;\n        }\n        \n        result.push_back({low, high}); \n\n       while (i < n) {\n            result.push_back(intervals[i]);\n            i++;\n        }\n\n        return result;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Merge Intervals",
+      "difficulty": "Medium",
+      "description": "Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\n1 <= intervals.length <= 104\nintervals[i].length == 2\n0 <= starti <= endi <= 104",
+      "tags": [
+        "Array",
+        "Sorting"
+      ],
+      "slug": "merge-intervals",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1738098678",
+          "runtime": "7 ms",
+          "memory": "23.9 MB",
+          "language": "cpp",
+          "id": "1523716810",
+          "code": "class Solution {\npublic:\n    vector<vector<int>> merge(vector<vector<int>>& intervals) {\n        int i = 0;\n        int n = intervals.size();\n        if (n == 0) return {}; \n        sort(intervals.begin(), intervals.end());\n\n        int low = intervals[i][0];\n        int high = intervals[i][1]; \n        vector<vector<int>> result;\n\n        while (i < n) {\n            if (intervals[i][0] <= high) {\n                low = min(low, intervals[i][0]);\n                high = max(high, intervals[i][1]); \n            } else {\n                result.push_back({low, high});\n                low = intervals[i][0];\n                high = intervals[i][1];\n            }\n            i++;\n        }\n\n        result.push_back({low, high});\n\n        return result;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Jump Game",
+      "difficulty": "Medium",
+      "description": "You are given an integer array nums. You are initially positioned at the array's first index, and each element in the array represents your maximum jump length at that position.\nReturn true if you can reach the last index, or false otherwise.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\n1 <= nums.length <= 104\n0 <= nums[i] <= 105",
+      "tags": [
+        "Array",
+        "Dynamic Programming",
+        "Greedy"
+      ],
+      "slug": "jump-game",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1737885948",
+          "runtime": "2 ms",
+          "memory": "52.3 MB",
+          "language": "cpp",
+          "id": "1520964274",
+          "code": "class Solution {\npublic:\n    bool canJump(vector<int>& nums) {\n        int furthestReachableIndex = 0; \n        for (int currentIndex = 0; currentIndex < nums.size(); currentIndex++) {\n            if (currentIndex > furthestReachableIndex) {\n                return false; \n            }\n            furthestReachableIndex = max(furthestReachableIndex, currentIndex + nums[currentIndex]);\n        }\n\n        return true;\n    }\n};\n"
+        }
+      ]
+    },
+    {
+      "title": "Spiral Matrix",
+      "difficulty": "Medium",
+      "description": "Given an m x n matrix, return all elements of the matrix in spiral order.\n\nExample 1:\n\nExample 2:\n\nConstraints:\n\nm == matrix.length\nn == matrix[i].length\n1 <= m, n <= 10\n-100 <= matrix[i][j] <= 100",
+      "tags": [
+        "Array",
+        "Matrix",
+        "Simulation"
+      ],
+      "slug": "spiral-matrix",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1734201882",
+          "runtime": "0 ms",
+          "memory": "9.3 MB",
+          "language": "cpp",
+          "id": "1478812324",
+          "code": "\nclass Solution {\npublic:\n    vector<int> spiralOrder(vector<vector<int>>& matrix) {\n        vector<int> ans;\n        int n = matrix.size();\n        int m = matrix[0].size();\n\n        int top = 0, bottom = n - 1;\n        int left = 0, right = m - 1;\n\n        while (top <= bottom && left <= right) {\n            for (int i = left; i <= right; i++) {\n                ans.push_back(matrix[top][i]);\n            }\n            top++;\n\n            for (int i = top; i <= bottom; i++) {\n                ans.push_back(matrix[i][right]);\n            }\n            right--;\n\n            if (top <= bottom) {\n                for (int i = right; i >= left; i--) {\n                    ans.push_back(matrix[bottom][i]);\n                }\n                bottom--;\n            }\n\n            if (left <= right) {\n                for (int i = bottom; i >= top; i--) {\n                    ans.push_back(matrix[i][left]);\n                }\n                left++;\n            }\n        }\n\n        return ans;\n    }\n};\n"
+        }
+      ]
+    },
+    {
+      "title": "Maximum Subarray",
+      "difficulty": "Medium",
+      "description": "Given an integer array nums, find the subarray with the largest sum, and return its sum.\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\n1 <= nums.length <= 105\n-104 <= nums[i] <= 104\n\nFollow up: If you have figured out the O(n) solution, try coding another solution using the divide and conquer approach, which is more subtle.",
+      "tags": [
+        "Array",
+        "Divide and Conquer",
+        "Dynamic Programming"
+      ],
+      "slug": "maximum-subarray",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1737656789",
+          "runtime": "0 ms",
+          "memory": "71.9 MB",
+          "language": "cpp",
+          "id": "1518290129",
+          "code": "class Solution {\npublic:\n    int maxSubArray(vector<int>& nums) {\n        int maxSum = nums[0];\n        int currentSum = nums[0];\n        \n        for (int i = 1; i < nums.size(); ++i) {\n            currentSum = max(nums[i], currentSum + nums[i]);\n            maxSum = max(maxSum, currentSum);\n        }\n        \n        return maxSum;\n    }\n};"
+        }
+      ]
+    },
+    {
+      "title": "Pow(x, n)",
+      "difficulty": "Medium",
+      "description": "Implement pow(x, n), which calculates x raised to the power n (i.e., xn).\n\nExample 1:\n\nExample 2:\n\nExample 3:\n\nConstraints:\n\n-100.0 < x < 100.0\n-231 <= n <= 231-1\nn is an integer.\nEither x is not zero or n > 0.\n-104 <= xn <= 104",
+      "tags": [
+        "Math",
+        "Recursion"
+      ],
+      "slug": "powx-n",
+      "submissions": [
+        {
+          "status": "Accepted",
+          "timestamp": "1735664780",
+          "runtime": "0 ms",
+          "memory": "8.6 MB",
+          "language": "cpp",
+          "id": "1493494902",
+          "code": "class Solution {\npublic:\n    double myPow(double x, int n) {\n    if(n == 0) return 1;\n    if(n == 1) return x;\n    if(n == -1) return 1/x;\n    \n    double half = myPow(x, n/2);\n    \n    if(n % 2 == 0) {\n        return half * half;\n    } else {\n       return (n > 0) ? x * half * half : (1/x) * half * half;\n    }\n}\n};"
+        }
+      ]
+    }
+  ]
+}
