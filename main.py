@@ -1,42 +1,52 @@
 import json
-import os
+import argparse
+import sys
 from src.fetcher import LeetCodeFetcher
 
 def main():
-    config_path = "config/config.json"
-    output_dir = "output"
-    output_path = os.path.join(output_dir, "leetcode_data.json")
-
-    with open(config_path, "r") as f:
-        config = json.load(f)
+    parser = argparse.ArgumentParser(description="Fetch LeetCode data for a user.")
+    parser.add_argument("--username", required=True, help="LeetCode username")
+    parser.add_argument("--session", required=True, help="LEETCODE_SESSION cookie value")
+    parser.add_argument("--csrf", required=True, help="csrftoken cookie value")
     
-    username = config["username"]
-    session_cookie = config["session_cookie"]
-    csrf_token = config["csrf_token"]
+    args = parser.parse_args()
 
-    print(f"Fetching data for user: {username}")
-    fetcher = LeetCodeFetcher(username, session_cookie, csrf_token)
+    username = args.username
+    session_cookie = args.session
+    csrf_token = args.csrf
 
-    print("Testing API connection...")
-    fetcher.test_connection()
-    print("API connection successful.")
+    # Use stderr for progress messages so stdout remains clean for JSON output
+    print(f"Fetching data for user: {username}", file=sys.stderr) 
+    
+    try:
+        fetcher = LeetCodeFetcher(username, session_cookie, csrf_token)
 
-    print("Fetching profile stats...")
-    profile_stats = fetcher.fetch_profile_stats()
+        print("Testing API connection...", file=sys.stderr)
+        fetcher.test_connection()
+        print("API connection successful.", file=sys.stderr)
 
-    print("Fetching submission history...")
-    submissions = fetcher.fetch_submissions(limit=500)  # High limit to get all
+        print("Fetching profile stats...", file=sys.stderr)
+        profile_stats = fetcher.fetch_profile_stats()
 
-    print("Processing submissions and fetching problem details...")
-    data = fetcher.process_data(profile_stats, submissions)
+        print("Fetching submission history...", file=sys.stderr)
+        # Consider if a limit is appropriate or if fetching all is desired
+        # The previous limit was high (500), implying fetching most/all recent.
+        # The current implementation fetches *all* accepted submissions via solved questions.
+        submissions = fetcher.fetch_submissions() 
 
-    os.makedirs(output_dir, exist_ok=True)
-    print(f"Saving data to {output_path}...")
-    fetcher.save_data(data, output_path)
-    print(f"Successfully saved LeetCode data to {output_path}")
+        print("Processing submissions and fetching problem details...", file=sys.stderr)
+        data = fetcher.process_data(profile_stats, submissions)
+
+        # Output the final data as JSON to stdout
+        print(json.dumps(data, indent=None)) # No indentation for cleaner parsing
+
+        print(f"Successfully fetched and processed data for {username}.", file=sys.stderr)
+
+    except Exception as e:
+        # Print error message to stderr
+        print(f"Error: {str(e)}", file=sys.stderr)
+        # Exit with a non-zero status code to indicate failure
+        sys.exit(1)
 
 if __name__ == "__main__":
-    try:
-        main()
-    except Exception as e:
-        print(f"Error: {str(e)}")
+    main()
