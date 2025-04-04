@@ -1,6 +1,7 @@
 import json
 import argparse
 import sys
+# Ensure src directory is in path or adjust import if needed based on execution context
 from src.fetcher import LeetCodeFetcher
 
 def main():
@@ -8,7 +9,7 @@ def main():
     parser.add_argument("--username", required=True, help="LeetCode username")
     parser.add_argument("--session", required=True, help="LEETCODE_SESSION cookie value")
     parser.add_argument("--csrf", required=True, help="csrftoken cookie value")
-    
+
     args = parser.parse_args()
 
     username = args.username
@@ -16,29 +17,31 @@ def main():
     csrf_token = args.csrf
 
     # Use stderr for progress messages so stdout remains clean for JSON output
-    print(f"Fetching data for user: {username}", file=sys.stderr) 
-    
+    print(f"Fetching data for user: {username}", file=sys.stderr)
+
     try:
         fetcher = LeetCodeFetcher(username, session_cookie, csrf_token)
 
-        print("Testing API connection...", file=sys.stderr)
-        fetcher.test_connection()
-        print("API connection successful.", file=sys.stderr)
+        # 1. Test Connection
+        fetcher.test_connection() # Will raise exception on failure
 
-        print("Fetching profile stats...", file=sys.stderr)
-        profile_stats = fetcher.fetch_profile_stats()
+        # 2. Fetch Profile Stats
+        profile_stats = fetcher.fetch_profile_stats() # Will raise exception on failure
 
-        print("Fetching submission history...", file=sys.stderr)
-        # Consider if a limit is appropriate or if fetching all is desired
-        # The previous limit was high (500), implying fetching most/all recent.
-        # The current implementation fetches *all* accepted submissions via solved questions.
-        submissions = fetcher.fetch_submissions() 
+        # 3. Fetch List of Solved Questions (slugs, titles, difficulty)
+        solved_questions = fetcher.fetch_solved_questions()
 
-        print("Processing submissions and fetching problem details...", file=sys.stderr)
-        data = fetcher.process_data(profile_stats, submissions)
+        # Check if solved_questions fetch was successful before proceeding
+        if solved_questions is None: # fetch_solved_questions might return None on critical error
+             raise Exception("Failed to retrieve the list of solved questions.")
 
-        # Output the final data as JSON to stdout
-        print(json.dumps(data, indent=None)) # No indentation for cleaner parsing
+        # 4. Process Data (Fetch Submissions & Details for each solved question)
+        # Pass the list of solved questions and profile stats
+        data = fetcher.process_data(solved_questions, profile_stats)
+
+        # 5. Output the final data as JSON to stdout
+        # Use compact separators for potentially smaller output, but None indent for single line
+        print(json.dumps(data, indent=None, separators=(',', ':')))
 
         print(f"Successfully fetched and processed data for {username}.", file=sys.stderr)
 

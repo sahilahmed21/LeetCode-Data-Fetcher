@@ -1,172 +1,55 @@
 import json
-import os
 import time
-import sys
 from collections import defaultdict
 import requests
-from bs4 import BeautifulSoup
-import re
+import sys
+from .utils import make_request, handle_rate_limit, parse_html_content
+from .scraper import scrape_problem_description, scrape_submission_code # Ensure scrape_submission_code is imported
 
-# Utility Functions
-def make_request(url, payload, cookies, headers, max_retries=3):
-    """Make HTTP request with retry logic."""
-    retries = 0
-    while retries < max_retries:
-        try:
-            response = requests.post(url, json=payload, cookies=cookies, headers=headers, timeout=30)
-            if response.status_code == 200:
-                return response.json()
-            elif response.status_code == 403:
-                raise Exception("Authentication failed: Invalid or expired cookies")
-            elif response.status_code == 429:
-                raise Exception("Rate limited")
-            else:
-                print(f"Error response: {response.text[:200]}...", file=sys.stderr)
-                raise Exception(f"Request failed with status code: {response.status_code}")
-        except requests.exceptions.RequestException as e:
-            retries += 1
-            if retries >= max_retries:
-                raise Exception(f"Request failed after {max_retries} retries: {str(e)}")
-            sleep_time = 2 ** retries
-            print(f"Request failed, retrying in {sleep_time} seconds...", file=sys.stderr)
-            time.sleep(sleep_time)
+# --- Helper to log progress to stderr ---
+def log_stderr(message):
+    print(message, file=sys.stderr)
 
-def handle_rate_limit(request_func, max_retries=5):
-    """Handle rate limiting with exponential backoff."""
-    retries = 0
-    while retries < max_retries:
-        try:
-            return request_func()
-        except Exception as e:
-            if "Rate limited" in str(e) and retries < max_retries:
-                retries += 1
-                sleep_time = 2 ** retries
-                print(f"Rate limited, retrying in {sleep_time} seconds... (Attempt {retries}/{max_retries})", file=sys.stderr)
-                time.sleep(sleep_time)
-            else:
-                raise e
-
-def parse_html_content(html_content):
-    """Parse HTML content to extract plain text."""
-    if not html_content:
-        return ""
-    soup = BeautifulSoup(html_content, 'html.parser')
-    for code in soup.find_all('pre'):
-        code.extract()
-    text = soup.get_text()
-    text = re.sub(r'\n\s*\n', '\n\n', text)
-    text = re.sub(r' +', ' ', text)
-    return text.strip()
-
-# Scraper Functions
-def scrape_problem_description(slug, cookies=None):
-    """Scrape problem description from LeetCode problem page when GraphQL fails."""
-    url = f"https://leetcode.com/problems/{slug}/"
-    headers = {
-        "User-Agent": "Mozilla/5.0",
-        "Accept": "text/html,application/xhtml+xml,application/xml"
-    }
-    try:
-        response = requests.get(url, headers=headers, cookies=cookies, timeout=30)
-        if response.status_code != 200:
-            return {
-                "title": slug,
-                "description": "",
-                "difficulty": "Unknown",
-                "tags": []
-            }
-        soup = BeautifulSoup(response.text, 'html.parser')
-        title_elem = soup.find('title')
-        title = title_elem.text.replace(' - LeetCode', '') if title_elem else slug
-        problem_container = soup.select_one('div[data-cy="question-title"]')
-        if problem_container:
-            parent = problem_container.parent
-            description_container = parent.find_next('div', {'class': 'content__u3I1'})
-            description = description_container.get_text() if description_container else ""
-            description = re.sub(r'\n\s*\n', '\n\n', description)
-            description = re.sub(r' +', ' ', description)
-        else:
-            description_elem = soup.select_one('div.question-content')
-            description = description_elem.get_text() if description_elem else ""
-        difficulty_elem = soup.select_one('div[diff]')
-        difficulty = difficulty_elem.get('diff') if difficulty_elem else "Unknown"
-        tags_container = soup.select('div.tag-v2')
-        tags = [tag.text.strip() for tag in tags_container] if tags_container else []
-        return {
-            "title": title,
-            "description": description.strip(),
-            "difficulty": difficulty,
-            "tags": tags
-        }
-    except Exception as e:
-        print(f"Error scraping problem {slug}: {str(e)}", file=sys.stderr)
-        return {
-            "title": slug,
-            "description": "",
-            "difficulty": "Unknown",
-            "tags": []
-        }
-
-def scrape_submission_code(submission_id, cookies=None):
-    """Scrape submission code from LeetCode submission detail page."""
-    url = f"https://leetcode.com/submissions/detail/{submission_id}/"
-    headers = {
-        "User-Agent": "Mozilla/5.0",
-        "Accept": "text/html,application/xhtml+xml,application/xml",
-        "Referer": "https://leetcode.com/submissions/",
-        "X-CSRFToken": cookies.get("csrftoken") if cookies else None
-    }
-    try:
-        response = requests.get(url, headers=headers, cookies=cookies, timeout=30)
-        if response.status_code != 200:
-            print(f"Failed to fetch submission {submission_id}: Status {response.status_code}", file=sys.stderr)
-            return None
-        soup = BeautifulSoup(response.text, 'html.parser')
-        code_elem = soup.select_one('div.CodeMirror-code')
-        if code_elem:
-            code_lines = [line.get_text() for line in code_elem.find_all('div')]
-            return '\n'.join(code_lines).strip()
-        print(f"No code found for submission {submission_id}", file=sys.stderr)
-        return None
-    except Exception as e:
-        print(f"Error scraping submission {submission_id}: {str(e)}", file=sys.stderr)
-        return None
-
-# Fetcher Class
 class LeetCodeFetcher:
     def __init__(self, username, session_cookie, csrf_token):
         """Initialize LeetCode fetcher with user credentials."""
         self.username = username
-        self.url = "https://leetcode.com/graphql"
-        self.api_base = "https://leetcode.com/api"
+        self.graphql_url = "https://leetcode.com/graphql"
+        self.api_base_url = "https://leetcode.com/api"
         self.cookies = {"LEETCODE_SESSION": session_cookie, "csrftoken": csrf_token}
-        self.headers = {
+        # Base headers, Cookie will be handled by requests library via cookies param
+        self.base_headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
             "Accept": "application/json, text/javascript, */*; q=0.01",
-            "Referer": "https://leetcode.com/",
+            "Referer": "https://leetcode.com/problemset/all/", # More specific referer
             "X-CSRFToken": csrf_token,
-            "Cookie": f"LEETCODE_SESSION={session_cookie}; csrftoken={csrf_token}"
+            # REMOVED "Cookie": f"LEETCODE_SESSION={session_cookie}; csrftoken={csrf_token}"
         }
+        log_stderr(f"Fetcher initialized for {username}. CSRF: {csrf_token[:5]}..., Session: {session_cookie[:5]}...")
 
     def test_connection(self):
-        """Test API connectivity and authentication."""
-        query = """
-        {
-            userStatus {
-                userId
-                isSignedIn
-            }
-        }
-        """
+        """Test GraphQL API connectivity and authentication."""
+        log_stderr("Testing GraphQL connection...")
+        query = """{ userStatus { isSignedIn } }"""
         payload = {"query": query}
-        response = handle_rate_limit(
-            lambda: make_request(self.url, payload, self.cookies, self.headers)
-        )
-        if not response.get("data") or not response["data"]["userStatus"]["isSignedIn"]:
-            raise Exception("Authentication failed or user not signed in.")
+        try:
+            # Use make_request for POST to GraphQL
+            response_data = handle_rate_limit(
+                lambda: make_request(self.graphql_url, payload, self.cookies, self.base_headers)
+            )
+            if not response_data.get("data") or not response_data["data"]["userStatus"]["isSignedIn"]:
+                raise Exception("Authentication failed or user not signed in (checked via GraphQL).")
+            log_stderr("GraphQL Connection Test: User is signed in.")
+        except Exception as e:
+            log_stderr(f"Error during connection test: {e}")
+            # Check if the error suggests auth failure specifically
+            if "Authentication failed" in str(e):
+                 raise Exception(f"Authentication failed during connection test: {e}. Check cookies.")
+            raise Exception(f"API Connection Test Failed: {e}")
 
     def fetch_profile_stats(self):
         """Fetch user profile statistics using GraphQL."""
+        log_stderr("Fetching profile stats via GraphQL...")
         query = """
         query userPublicProfile($username: String!) {
             matchedUser(username: $username) {
@@ -181,195 +64,269 @@ class LeetCodeFetcher:
         }
         """
         payload = {"query": query, "variables": {"username": self.username}}
-        response = handle_rate_limit(
-            lambda: make_request(self.url, payload, self.cookies, self.headers)
-        )
-        if not response.get("data") or not response["data"].get("matchedUser"):
-            raise Exception("Failed to fetch profile stats. Check if credentials are valid.")
-        return response["data"]["matchedUser"]
+        try:
+            response_data = handle_rate_limit(
+                lambda: make_request(self.graphql_url, payload, self.cookies, self.base_headers)
+            )
+            if "errors" in response_data or not response_data.get("data") or not response_data["data"].get("matchedUser"):
+                 error_msg = f"GraphQL error fetching profile stats: {response_data.get('errors', 'No data returned')}"
+                 log_stderr(error_msg)
+                 raise Exception(error_msg)
+
+            stats = response_data["data"]["matchedUser"]
+            log_stderr(f"Profile stats fetched successfully for {stats.get('username', 'user')}.")
+            return stats
+        except Exception as e:
+            log_stderr(f"Error in fetch_profile_stats: {e}")
+            # Re-raise but ensure sensitive details aren't leaked if needed
+            raise Exception(f"Failed to fetch profile stats: {e}")
+
 
     def fetch_solved_questions(self):
-        """Fetch all solved questions using the algorithms API endpoint."""
-        url = f"{self.api_base}/problems/algorithms/"
+        """Fetch all solved questions using the REST API endpoint."""
+        log_stderr("Fetching solved questions list via REST API...")
+        url = f"{self.api_base_url}/problems/algorithms/"
         try:
-            response = requests.get(url, headers=self.headers, cookies=self.cookies, timeout=30)
-            if response.status_code != 200:
-                print(f"Failed to fetch solved questions: Status {response.status_code}", file=sys.stderr)
-                return []
+            # Use requests.get for REST endpoint
+            response = requests.get(url, headers=self.base_headers, cookies=self.cookies, timeout=30)
+            response.raise_for_status() # Raise HTTPError for bad responses (4xx or 5xx)
+
             data = response.json()
             questions = []
+             # Use LeetCode's actual difficulty names from API if possible, else map
             difficulties = {1: "Easy", 2: "Medium", 3: "Hard"}
             for pair in data.get("stat_status_pairs", []):
+                # Filter for 'ac' (Accepted) status
                 if pair.get("status") != "ac":
                     continue
-                stat = pair["stat"]
-                difficulty = difficulties.get(pair["difficulty"]["level"], "Unknown")
+                stat = pair.get("stat", {})
+                difficulty_info = pair.get("difficulty", {})
+                slug = stat.get("question__title_slug")
+                title = stat.get("question__title") # Get title directly if available
+                level = difficulty_info.get("level")
+
+                if not slug:
+                     log_stderr(f"Warning: Skipping question pair due to missing slug: {stat.get('question_id')}")
+                     continue
+
                 questions.append({
-                    "title": stat["question__title"],
-                    "slug": stat["question__title_slug"],
-                    "difficulty": difficulty
+                    "slug": slug,
+                    "title": title or slug.replace('-', ' ').title(), # Fallback title from slug
+                    "difficulty": difficulties.get(level, "Unknown")
                 })
-            print(f"Fetched {len(questions)} solved questions.", file=sys.stderr)
+
+            log_stderr(f"Fetched {len(questions)} solved question slugs.")
             return questions
+
+        except requests.exceptions.HTTPError as http_err:
+             log_stderr(f"HTTP error fetching solved questions: {http_err} - Status: {response.status_code}")
+             if response.status_code in [401, 403]:
+                 raise Exception(f"Authentication failed fetching solved questions (Status {response.status_code}). Check cookies.")
+             else:
+                 raise Exception(f"HTTP error fetching solved questions: {http_err}")
+        except requests.exceptions.RequestException as req_err:
+            log_stderr(f"Request error fetching solved questions: {req_err}")
+            raise Exception(f"Network error fetching solved questions: {req_err}")
         except Exception as e:
-            print(f"Error fetching solved questions: {str(e)}", file=sys.stderr)
-            return []
+            log_stderr(f"Error parsing solved questions data: {e}")
+            raise Exception(f"Failed to parse solved questions list: {e}")
 
     def fetch_submissions_for_question(self, title_slug):
-        """Fetch submissions for a specific question."""
-        url = f"{self.api_base}/submissions/{title_slug}/"
+        """Fetch submissions for a specific question using the REST API."""
+        url = f"{self.api_base_url}/submissions/{title_slug}/"
+        log_stderr(f"Attempting to fetch submissions for: {title_slug} via REST API")
         try:
-            response = requests.get(url, headers=self.headers, cookies=self.cookies, timeout=30)
-            if response.status_code != 200:
-                print(f"Failed to fetch submissions for {title_slug}: Status {response.status_code}", file=sys.stderr)
-                return []
+            # Use simple GET request with cookies handled by requests library
+            response = requests.get(url, headers=self.base_headers, cookies=self.cookies, timeout=45) # Increased timeout
+
+            # Explicitly check for 403 before raising generic error
+            if response.status_code == 403:
+                 log_stderr(f"Failed to fetch submissions for {title_slug}: Status 403 (Forbidden). Check authentication/permissions.")
+                 # Return empty list on auth failure for this specific slug
+                 return []
+            elif response.status_code == 429:
+                 log_stderr(f"Rate limited fetching submissions for {title_slug}. Consider adding delays.")
+                 # Could implement retry here or let higher level handle
+                 return []
+
+            response.raise_for_status() # Raise for other errors (4xx, 5xx)
+
             data = response.json()
-            submissions = data.get("submissions_dump", [])
-            accepted_subs = {}
-            for sub in submissions:
+            api_submissions = data.get("submissions_dump", [])
+            if not api_submissions:
+                log_stderr(f"No submissions found in API response for {title_slug}.")
+                return []
+
+            # Filter for accepted submissions and get the latest per language, fetch code if needed
+            accepted_subs_details = {}
+            for sub in api_submissions:
                 if sub.get("status_display") != "Accepted":
                     continue
-                lang = sub["lang"]
-                if lang not in accepted_subs or int(sub["timestamp"]) > int(accepted_subs[lang]["timestamp"]):
-                    code = scrape_submission_code(sub["id"], self.cookies) if not sub.get("code") else sub["code"]
-                    accepted_subs[lang] = {
+
+                lang = sub.get("lang")
+                if not lang:
+                    continue
+
+                try:
+                    current_ts = int(sub["timestamp"])
+                except (ValueError, TypeError):
+                    log_stderr(f"Warning: Invalid timestamp '{sub.get('timestamp')}' for submission ID {sub.get('id')} in {title_slug}")
+                    continue
+
+                # Check if this submission is newer for the language
+                if lang not in accepted_subs_details or current_ts > int(accepted_subs_details[lang]["timestamp"]):
+                    submission_id = sub.get("id")
+                    code = sub.get("code") # Sometimes the API includes it
+                    if not code and submission_id:
+                        log_stderr(f"Code not in API dump for submission {submission_id}, attempting scrape...")
+                        # Add a small delay before scraping
+                        time.sleep(0.5)
+                        code = scrape_submission_code(submission_id, self.cookies)
+                        if not code:
+                             log_stderr(f"Warning: Failed to scrape code for submission {submission_id}")
+                             code = "// Code could not be retrieved"
+
+                    # Store the details needed by the backend
+                    accepted_subs_details[lang] = {
                         "status": sub["status_display"],
-                        "timestamp": str(sub["timestamp"]),
+                        "timestamp": str(sub["timestamp"]), # Ensure string
                         "runtime": sub.get("runtime", "N/A"),
                         "memory": sub.get("memory", "N/A"),
-                        "language": sub["lang"],
-                        "submission_id": str(sub["id"]),
+                        "language": lang,
+                        "submission_id": str(submission_id), # Ensure string
                         "code": code or ""
                     }
-            return list(accepted_subs.values())
-        except Exception as e:
-            print(f"Error fetching submissions for {title_slug}: {str(e)}", file=sys.stderr)
-            return []
+            log_stderr(f"Found {len(accepted_subs_details)} accepted submissions for {title_slug}.")
+            return list(accepted_subs_details.values())
 
-    def fetch_submissions(self, limit=500):
-        """Fetch all submissions by first getting solved questions, then submissions per question."""
-        questions = self.fetch_solved_questions()
-        if not questions:
+        except requests.exceptions.HTTPError as http_err:
+            # Log non-403 HTTP errors specifically
+            log_stderr(f"HTTP error fetching submissions for {title_slug}: {http_err} - Status: {response.status_code}")
+            # Return empty list on error for this slug, allows processing others
             return []
-        
-        submissions = []
-        total_questions = len(questions)
-        for i, q in enumerate(questions):
-            title_slug = q["slug"]
-            print(f"Fetching submissions for question {i+1}/{total_questions}: {title_slug}", file=sys.stderr)
-            subs = self.fetch_submissions_for_question(title_slug)
-            submissions.extend(subs)
-            time.sleep(1)  # Avoid rate limiting
-        print(f"Fetched {len(submissions)} total submissions.", file=sys.stderr)
-        return submissions
+        except requests.exceptions.RequestException as req_err:
+            log_stderr(f"Request error fetching submissions for {title_slug}: {req_err}")
+            return [] # Return empty list on network error for this slug
+        except Exception as e:
+            # Catch potential JSON parsing errors or others
+            log_stderr(f"Unexpected error processing submissions for {title_slug}: {e}")
+            return [] # Return empty list on unexpected error for this slug
 
     def fetch_problem_details(self, slug):
-        """Fetch problem details by slug using GraphQL."""
+        """Fetch problem details by slug using GraphQL (with scraper fallback)."""
+        log_stderr(f"Fetching details for problem: {slug} via GraphQL")
         query = """
         query questionData($titleSlug: String!) {
             question(titleSlug: $titleSlug) {
                 title
                 content
                 difficulty
-                topicTags {
-                    name
-                }
+                topicTags { name }
             }
         }
         """
         payload = {"query": query, "variables": {"titleSlug": slug}}
-        response = handle_rate_limit(
-            lambda: make_request(self.url, payload, self.cookies, self.headers)
-        )
-        if not response.get("data") or not response["data"].get("question"):
-            print(f"Couldn't fetch problem details for {slug} via GraphQL, trying scraper...", file=sys.stderr)
-            return scrape_problem_description(slug, self.cookies)
-        question = response["data"]["question"]
-        question["description"] = parse_html_content(question.get("content", ""))
-        del question["content"]
-        question["tags"] = [tag["name"] for tag in question.get("topicTags", [])]
-        del question["topicTags"]
-        return question
+        try:
+            # Use make_request for POST to GraphQL
+            response_data = handle_rate_limit(
+                lambda: make_request(self.graphql_url, payload, self.cookies, self.base_headers)
+            )
 
-    def process_data(self, profile_stats, submissions):
-        """Process and structure fetched data into the required format."""
-        difficulty_stats = {
-            item["difficulty"].lower(): item["count"]
-            for item in profile_stats["submitStats"]["acSubmissionNum"]
-            if item["difficulty"] in ["Easy", "Medium", "Hard"]
-        }
-        problem_submissions = defaultdict(list)
-        for sub in submissions:
-            slug = sub.get("titleSlug", "")
-            if not slug:
-                continue
-            problem_submissions[slug].append({
-                "status": sub["status"],
-                "timestamp": sub["timestamp"],
-                "runtime": sub["runtime"],
-                "memory": sub["memory"],
-                "language": sub["language"],
-                "submission_id": sub["submission_id"],
-                "code": sub["code"]
+            if "errors" in response_data or not response_data.get("data") or not response_data["data"].get("question"):
+                log_stderr(f"GraphQL failed for {slug}, falling back to scraper. Errors: {response_data.get('errors')}")
+                # Fallback to scraper
+                time.sleep(0.5) # Small delay before scraping
+                scraped_data = scrape_problem_description(slug, self.cookies)
+                return {
+                    "title": scraped_data.get("title", slug),
+                    "description": scraped_data.get("description", "Could not fetch description."),
+                    "difficulty": scraped_data.get("difficulty", "Unknown"),
+                    "tags": scraped_data.get("tags", [])
+                }
+
+            question = response_data["data"]["question"]
+            description_text = parse_html_content(question.get("content", ""))
+            tags = [tag["name"] for tag in question.get("topicTags", []) if tag and "name" in tag]
+
+            log_stderr(f"Successfully fetched details for {slug} via GraphQL.")
+            return {
+                "title": question.get("title", slug),
+                "description": description_text,
+                "difficulty": question.get("difficulty", "Unknown"),
+                "tags": tags
+            }
+        except Exception as e:
+            log_stderr(f"Error during fetch_problem_details for {slug} (GraphQL/Scraper): {e}")
+            # Critical failure for this problem, return minimal info
+            return {
+                "title": slug.replace('-', ' ').title(),
+                "description": f"Error fetching details: {e}",
+                "difficulty": "Unknown",
+                "tags": []
+            }
+
+    def process_data(self, solved_questions, profile_stats):
+        """Fetch submissions & details for solved questions and structure data."""
+        log_stderr("Starting data processing: Fetching submissions and details...")
+        # Process profile stats
+        difficulty_map = {"Easy": 0, "Medium": 0, "Hard": 0}
+        total_solved = 0
+        if profile_stats and profile_stats.get("submitStats"):
+             for item in profile_stats["submitStats"].get("acSubmissionNum", []):
+                 difficulty = item.get("difficulty")
+                 count = item.get("count", 0)
+                 if difficulty in difficulty_map:
+                     difficulty_map[difficulty] = count
+                     total_solved += count
+        log_stderr(f"Profile Stats Processed: Total={total_solved}, E={difficulty_map['Easy']}, M={difficulty_map['Medium']}, H={difficulty_map['Hard']}")
+
+        problems_output = []
+        total_to_process = len(solved_questions)
+
+        # Fetch submissions and details per solved question
+        for i, question_info in enumerate(solved_questions):
+            slug = question_info["slug"]
+            log_stderr(f"Processing {i+1}/{total_to_process}: {slug}")
+
+            # 1. Fetch submissions for this specific slug
+            submissions_list = self.fetch_submissions_for_question(slug)
+            # If submissions fail (e.g., 403), submissions_list will be empty, but we still fetch details
+
+            # 2. Fetch problem details
+            problem_details = self.fetch_problem_details(slug)
+
+            # 3. Combine into the final structure
+            problems_output.append({
+                "title": problem_details.get("title", question_info.get("title", slug)), # Use best available title
+                "slug": slug, # Ensure slug is always included
+                "difficulty": problem_details.get("difficulty", question_info.get("difficulty", "Unknown")), # Best available difficulty
+                "description": problem_details.get("description", ""),
+                "tags": problem_details.get("tags", []),
+                "submissions": submissions_list # Attach the (potentially empty) list of submissions
             })
-        
-        problems = []
-        for i, slug in enumerate(problem_submissions.keys()):
-            print(f"Fetching details for problem {i+1}/{len(problem_submissions)}: {slug}", file=sys.stderr)
-            problem_info = self.fetch_problem_details(slug)
-            problem_info["slug"] = slug
-            problem_info["submissions"] = problem_submissions[slug]
-            problems.append(problem_info)
-            if i % 5 == 0 and i > 0:
-                time.sleep(1)  # Avoid rate limiting
-        
+
+            # Add delay to avoid rate limiting (adjust as needed)
+            if i > 0 and i % 10 == 0:
+                time.sleep(1.5)
+            else:
+                time.sleep(0.7)
+
+        log_stderr(f"Finished processing {len(problems_output)} problems.")
         return {
             "profile_stats": {
-                "total_solved": sum(difficulty_stats.values()),
-                "easy": difficulty_stats.get("easy", 0),
-                "medium": difficulty_stats.get("medium", 0),
-                "hard": difficulty_stats.get("hard", 0)
+                "total_solved": total_solved,
+                "easy": difficulty_map["Easy"],
+                "medium": difficulty_map["Medium"],
+                "hard": difficulty_map["Hard"]
             },
-            "problems": problems
+            "problems": problems_output # This list now contains problems with details and their submissions
         }
 
-# Main Execution
-def main(username, session_cookie, csrf_token):
-    print(f"Fetching data for user: {username}", file=sys.stderr)
-    fetcher = LeetCodeFetcher(username, session_cookie, csrf_token)
-
-    print("Testing API connection...", file=sys.stderr)
-    fetcher.test_connection()
-    print("API connection successful.", file=sys.stderr)
-
-    print("Fetching profile stats...", file=sys.stderr)
-    profile_stats = fetcher.fetch_profile_stats()
-
-    print("Fetching submission history...", file=sys.stderr)
-    submissions = fetcher.fetch_submissions(limit=500)
-
-    print("Processing submissions and fetching problem details...", file=sys.stderr)
-    data = fetcher.process_data(profile_stats, submissions)
-
-    # Output JSON data to stdout
-    print(json.dumps(data, indent=2, ensure_ascii=False))
-    print(f"Successfully fetched and processed data for {username}.", file=sys.stderr)
-
-if __name__ == "__main__":
-    if len(sys.argv) != 7:
-        print("Usage: python fetcher.py --username <username> --session <session_cookie> --csrf <csrf_token>", file=sys.stderr)
-        sys.exit(1)
-    
-    username = sys.argv[2] if sys.argv[1] == "--username" else None
-    session_cookie = sys.argv[4] if sys.argv[3] == "--session" else None
-    csrf_token = sys.argv[6] if sys.argv[5] == "--csrf" else None
-    
-    if not all([username, session_cookie, csrf_token]):
-        print("Missing required arguments.", file=sys.stderr)
-        sys.exit(1)
-    
-    try:
-        main(username, session_cookie, csrf_token)
-    except Exception as e:
-        print(f"Error: {str(e)}", file=sys.stderr)
-        sys.exit(1)
+# Main Execution Logic (No changes needed in main.py structure itself)
+# main.py should call these methods in the correct order:
+# 1. fetcher = LeetCodeFetcher(...)
+# 2. fetcher.test_connection()
+# 3. profile_stats = fetcher.fetch_profile_stats()
+# 4. solved_questions = fetcher.fetch_solved_questions()
+# 5. data = fetcher.process_data(solved_questions, profile_stats) <--- Pass solved_questions here
+# 6. print(json.dumps(data))
